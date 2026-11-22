@@ -1,0 +1,966 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0A1130">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>رجال الفجر</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="jsqr.js" defer></script>
+<script src="qrcode.js" defer></script>
+<style>
+:root{--bg:#0A1130;--bg2:#111A45;--card:#172158;--line:#28337A;--gold:#F2C14E;--txt:#F6F1E4;--mut:#AAB2DA;--ok:#1FA463;--dup:#E98A00;--bad:#D64545;--grn:#0A7A2F;--org:#F07A1E}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--txt);font-family:'Tajawal',system-ui,sans-serif}
+body{min-height:100vh;background:radial-gradient(130% 55% at 50% 0%,#1E2E74 0%,var(--bg) 62%) fixed}
+button{font:inherit;cursor:pointer}
+[hidden]{display:none!important}
+.screen{display:none;padding:16px 16px 120px;max-width:720px;margin:0 auto}
+.screen.on{display:block}
+.top{display:flex;align-items:center;gap:10px;margin:4px 0 16px}
+.top h2{margin:0;font-size:1.35rem}
+.back{width:44px;height:44px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--txt);font-size:1.3rem;flex:none}
+.brand{display:flex;align-items:center;gap:12px;margin:6px 0 14px}
+.brand img{width:58px;height:58px;border-radius:16px;background:#fff;padding:4px;object-fit:contain}
+.brand h1{margin:0;font-size:1.6rem;color:var(--gold);line-height:1.1}
+.brand .sub{color:var(--mut);font-size:.92rem}
+.brand .gear{margin-inline-start:auto}
+.banner{background:#3A2A00;border:1px solid #6B5000;color:#FFE3A3;border-radius:14px;padding:10px 12px;font-size:.9rem;margin-bottom:12px}
+.today{display:flex;justify-content:space-between;align-items:center;background:var(--bg2);border:1px solid var(--line);border-radius:18px;padding:12px 16px;margin-bottom:14px}
+.today b{font-size:1.9rem;color:var(--gold)}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.tile{position:relative;background:linear-gradient(160deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:22px;padding:14px 8px;color:var(--txt);font-size:1.02rem;font-weight:700;min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;line-height:1.35}
+.tile .ic{font-size:2.2rem}
+.tile .lock{position:absolute;top:8px;left:10px;font-size:.8rem;color:var(--mut)}
+.tile:active,.btn:active{transform:scale(.98)}
+.btn{display:block;width:100%;border:0;border-radius:16px;padding:15px;font-weight:800;font-size:1.08rem;background:var(--gold);color:#1B1300;margin-top:10px}
+.btn.sec{background:var(--card);color:var(--txt);border:1px solid var(--line)}
+.btn.grn{background:var(--ok);color:#fff}.btn.red{background:var(--bad);color:#fff}
+.btn.huge{padding:22px;font-size:1.35rem}
+.btn:disabled{opacity:.5}
+.row2{display:flex;gap:8px}.row2 .btn{flex:1}
+.pill{display:inline-block;margin-top:14px;padding:6px 12px;border-radius:99px;background:var(--bg2);border:1px solid var(--line);color:var(--mut);font-size:.85rem}
+.pill.err{color:#FFB4B4;border-color:#7A2B2B}
+.bigdate{position:relative;display:block;text-align:center;padding:20px 10px;border-radius:24px;background:linear-gradient(170deg,#22337F,#141D50);border:1px solid var(--line)}
+.bigdate .day{font-size:1.5rem;color:var(--gold);font-weight:700}
+.bigdate .d{font-size:2.4rem;font-weight:800;margin:4px 0}
+.bigdate .hint{color:var(--mut);font-size:.85rem}
+.bigdate input{position:absolute;inset:0;opacity:0;width:100%;height:100%}
+.cnt{text-align:center;margin:16px 0 4px;font-size:1.15rem;color:var(--mut)}
+.cnt b{font-size:2.4rem;color:var(--txt);display:block}
+input,select,textarea{width:100%;padding:13px;border-radius:14px;border:1px solid var(--line);background:#0D1542;color:var(--txt);font:inherit;font-size:1.05rem}
+textarea{min-height:90px}
+label.f{display:block;margin:12px 0 6px;color:var(--mut)}
+.total{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border:1px solid var(--line);border-radius:18px;padding:12px 16px;margin-bottom:12px}
+.total b{font-size:2rem;color:var(--gold)}
+.seg{display:flex;gap:8px;margin:12px 0}
+.seg button{flex:1;padding:11px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--mut);font-weight:700}
+.seg button.on{background:var(--card);color:var(--txt)}
+.item{display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid var(--line)}
+.item.tap{cursor:pointer}
+.item .num{min-width:28px;text-align:center;color:var(--mut);font-weight:700;flex:none}
+.item .nm{flex:1;min-width:0}
+.item .nm b{display:block;font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .nm small{color:var(--mut)}
+.av{width:48px;height:48px;border-radius:50%;object-fit:cover;background:#2A3680;display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--gold);flex:none;font-size:1.2rem}
+.ib{border:1px solid var(--line);background:var(--card);color:var(--txt);border-radius:12px;padding:9px 12px;font-weight:700;flex:none}
+.ib.arm{background:var(--bad);border-color:var(--bad)}
+.ib.add{background:var(--ok);border-color:var(--ok)}
+.dock{position:fixed;left:0;right:0;bottom:0;padding:10px 16px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--bg) 30%);display:flex;gap:10px;max-width:720px;margin:0 auto}
+.dock .btn{margin:0}
+.empty{text-align:center;color:var(--mut);padding:26px 10px}
+.stars{color:var(--gold);font-weight:800;flex:none;font-size:1.05rem}
+.grp{margin:18px 0 4px;font-weight:800;color:var(--gold);display:flex;justify-content:space-between}
+.grp small{color:var(--mut);font-weight:500}
+.hon{background:linear-gradient(160deg,#3A2C00,#1C1A3E);border:1px solid #6B5000;border-radius:18px;padding:6px 12px 2px;margin-bottom:8px}
+.prof{text-align:center;background:var(--bg2);border:1px solid var(--line);border-radius:24px;padding:20px}
+.prof .av{width:130px;height:130px;margin:0 auto;font-size:2.6rem}
+.prof h3{margin:12px 0 2px;font-size:1.6rem}
+.prof .big{font-size:2.2rem;color:var(--gold);font-weight:800;margin:10px 0 4px}
+.badge{display:inline-block;padding:3px 10px;border-radius:99px;background:#5A4300;color:#FFD966;font-weight:700;font-size:.85rem}
+.badge.g{background:#163D2A;color:#9BE3B9}
+.hist{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px;margin-top:14px}
+.hist div{border-radius:10px;padding:6px 2px;text-align:center;font-size:.8rem;background:#1D275F;color:var(--mut)}
+.hist .p{background:#124A2E;color:#9BE3B9}.hist .a{background:#4A1A1A;color:#FFB4B4}
+.photoPick{display:flex;align-items:center;gap:12px;padding:12px;border:1px dashed var(--line);border-radius:16px;margin-top:12px;color:var(--mut);cursor:pointer}
+.photoPick img{width:70px;height:70px;border-radius:50%;object-fit:cover}
+.warn{color:#FFD27A;font-size:.92rem;margin-top:8px}
+.cardNo{display:inline-block;direction:ltr;font-weight:800;letter-spacing:1px;background:#fff;color:var(--grn);border-radius:10px;padding:2px 10px}
+.box{background:var(--bg2);border:1px solid var(--line);border-radius:20px;padding:16px;margin-top:12px}
+.chk{width:24px;height:24px;flex:none;accent-color:var(--gold)}
+details.types{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:0 12px;margin-top:10px}
+details.types summary{padding:12px 0;font-weight:700;cursor:pointer}
+details.types label{display:flex;align-items:center;gap:10px;padding:8px 0}
+.qcount{display:flex;justify-content:space-between;align-items:center;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:10px 14px;font-size:.95rem;color:var(--mut)}
+.qcount b{color:var(--gold);font-size:1.3rem}
+.drawn{text-align:center}
+.drawn .av{width:120px;height:120px;margin:0 auto;font-size:2.6rem}
+.drawn h3{font-size:1.8rem;margin:10px 0 4px}
+.qtext{font-size:1.45rem;font-weight:700;line-height:1.6;text-align:center;margin:8px 0}
+.qans{background:#124A2E;color:#C9F2DA;border-radius:14px;padding:12px;text-align:center;font-size:1.15rem;margin-top:10px}
+.res{display:flex;gap:8px}.res button{flex:1;padding:14px;border-radius:14px;border:2px solid var(--line);background:transparent;color:var(--txt);font-weight:800;font-size:1.1rem}
+.res button.on.ok{background:var(--ok);border-color:var(--ok)}.res button.on.no{background:var(--bad);border-color:var(--bad)}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0}
+.switch input{width:52px;height:30px;flex:none;accent-color:var(--ok)}
+/* ---------- الماسح ---------- */
+#scanner{position:fixed;inset:0;background:#000;display:none;z-index:50;overflow:hidden}
+#scanner.on{display:block}
+#video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ret{position:absolute;left:50%;top:40%;width:62vmin;height:62vmin;transform:translate(-50%,-50%);border:3px solid rgba(242,193,78,.95);border-radius:26px;box-shadow:0 0 0 100vmax rgba(0,0,0,.32);pointer-events:none}
+.del .ret{border-color:var(--bad)}
+.stop{position:absolute;top:0;left:0;right:0;padding:calc(12px + env(safe-area-inset-top)) 16px 26px;display:flex;justify-content:space-between;align-items:flex-start;background:linear-gradient(#000b,transparent);color:#fff}
+.stop .md{font-weight:800;font-size:1.1rem}
+.stop .dt{font-size:1.25rem;color:var(--gold);font-weight:800}
+.stop .sc{text-align:center;background:#0009;border-radius:16px;padding:6px 14px}
+.stop .sc b{display:block;font-size:2rem;line-height:1}
+.sbot{position:absolute;bottom:0;left:0;right:0;padding:16px 14px calc(16px + env(safe-area-inset-bottom));display:flex;gap:10px;align-items:center;background:linear-gradient(transparent,#000d)}
+.sbot .btn{margin:0;flex:1}
+.cb{width:58px;height:58px;border-radius:50%;border:0;background:#ffffff26;color:#fff;font-size:1.5rem;flex:none}
+.cb.on{background:var(--gold);color:#000}
+.scard{position:absolute;left:12px;right:12px;bottom:104px;border-radius:24px;padding:14px;display:flex;align-items:center;gap:14px;background:#fff;color:#111;border:5px solid #ccc;opacity:0;transform:translateY(24px) scale(.97);transition:opacity .12s,transform .12s;pointer-events:none}
+.scard.show{opacity:1;transform:none}
+.scard .av{width:104px;height:104px;font-size:2.4rem;background:#E8EBF7;color:#2A3680}
+.scard .nm{font-size:1.5rem;font-weight:800;line-height:1.25}
+.scard .tag{display:inline-block;margin-top:6px;padding:4px 14px;border-radius:99px;color:#fff;font-weight:800;font-size:1.15rem}
+.scard .note{margin-top:6px;font-weight:800;color:#8A4B00;background:#FFF1D6;border-radius:10px;padding:4px 8px;font-size:.95rem}
+.scard.ok{border-color:var(--ok)}.scard.ok .tag{background:var(--ok)}
+.scard.dup{border-color:var(--dup)}.scard.dup .tag{background:var(--dup)}
+.scard.bad,.scard.del{border-color:var(--bad)}.scard.bad .tag,.scard.del .tag{background:var(--bad)}
+.miniNet{position:absolute;top:calc(84px + env(safe-area-inset-top));right:16px;font-size:.8rem;color:#fff;background:#0008;padding:3px 10px;border-radius:99px}
+.sheetM{position:absolute;left:0;right:0;bottom:0;background:var(--bg);border-radius:24px 24px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto;z-index:5;box-shadow:0 -10px 40px #000a}
+#toast{position:fixed;left:50%;top:calc(130px + env(safe-area-inset-top));transform:translateX(-50%);background:#000e;color:#fff;padding:10px 16px;border-radius:14px;z-index:99;display:none;max-width:90vw;text-align:center}
+/* ---------- الدخول ---------- */
+#login .brand{flex-direction:column;text-align:center;margin-top:30px}
+#login .brand img{width:110px;height:110px;border-radius:26px}
+/* ---------- البطاقة المطبوعة ---------- */
+.pcard{width:8.5cm;height:5.5cm;display:flex;border:1px dashed #9aa;border-radius:.3cm;overflow:hidden;background:#fff;color:#123;break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-family:'Tajawal',sans-serif}
+.pcard .pl{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.08cm;padding:.2cm;background:linear-gradient(180deg,#FFF7EE,#fff 60%)}
+.pcard .pl img{width:2.15cm;height:2.15cm;object-fit:contain}
+.pcard .t1{font-weight:800;font-size:16pt;color:var(--grn);line-height:1.05}
+.pcard .t2{font-weight:800;font-size:11.5pt;color:var(--org);line-height:1}
+.pcard .pr{width:4.4cm;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.08cm;border-inline-start:.12cm solid var(--org);background:#fff}
+.pcard .pq{width:3.95cm;height:3.95cm;image-rendering:pixelated}
+.pcard .pn{font-weight:800;font-size:15pt;direction:ltr;letter-spacing:2px;color:var(--grn);line-height:1}
+.previewCard{display:flex;justify-content:center;margin:14px 0;overflow:auto}
+#printArea{display:none}
+@media print{
+  body{background:#fff!important}
+  body>*:not(#printArea){display:none!important}
+  #printArea{display:grid!important;grid-template-columns:repeat(2,8.5cm);gap:.12cm;justify-content:center}
+  @page{size:A4;margin:.7cm}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= الدخول ================= -->
+<section id="login" class="screen">
+  <div class="brand"><img src="logo.png" alt=""><div><h1>رجال الفجر</h1><div class="sub">جيل الغد · مسجد الفرقان – عنابة</div></div></div>
+  <div id="lgUrlBox"><label class="f">رابط الخادم (ينتهي بـ ‎/exec)</label><input id="lgUrl" dir="ltr" placeholder="https://script.google.com/macros/s/.../exec"></div>
+  <label class="f">اسمك (يظهر في سجل المسح)</label><input id="lgName" autocomplete="name">
+  <label class="f">كلمة المرور</label><input id="lgPass" type="password" dir="ltr">
+  <button class="btn" id="lgGo">دخول</button>
+  <button class="btn sec" id="lgDemo">🧪 تجربة بدون جدول</button>
+</section>
+
+<!-- ================= الرئيسية ================= -->
+<section id="home" class="screen">
+  <div class="brand"><img src="logo.png" alt=""><div><h1>رجال الفجر</h1><div class="sub">جيل الغد · مسجد الفرقان</div></div><button class="back gear" onclick="go('settings')">⚙️</button></div>
+  <div id="demoBanner" class="banner" hidden>🧪 وضع تجريبي — البيانات على هذا الهاتف فقط.</div>
+  <div class="today"><div><div style="color:var(--mut)">حضور اليوم</div><div id="homeDate"></div></div><b id="homeCount">0</b></div>
+  <div class="tiles">
+    <button class="tile" onclick="go('att')"><span class="ic">✅</span>تحديد الحاضرين</button>
+    <button class="tile" onclick="go('add')"><span class="ic">➕</span>إضافة عضو جديد</button>
+    <button class="tile adm" onclick="go('edit')"><span class="lock">🔒</span><span class="ic">✏️</span>تعديل معلومات عضو</button>
+    <button class="tile" onclick="go('ranks')"><span class="ic">⭐</span>التصنيفات</button>
+    <button class="tile" onclick="go('quiz')"><span class="ic">🎲</span>أسئلة عشوائية</button>
+    <button class="tile" onclick="openScanner('who')"><span class="ic">🔍</span>التعرف على صاحب البطاقة</button>
+  </div>
+  <button class="btn sec adm" onclick="go('cards')">🖨️ طباعة البطاقات</button>
+  <div id="net" class="pill"></div>
+</section>
+
+<!-- ================= تحديد الحاضرين ================= -->
+<section id="att" class="screen">
+  <div class="top"><button class="back" onclick="go('home')">→</button><h2>تحديد الحاضرين</h2></div>
+  <label class="bigdate"><div class="day" id="attDay"></div><div class="d" id="attDate"></div><div class="hint">📅 اضغط لتغيير التاريخ</div><input type="date" id="attPick"></label>
+  <div class="cnt"><b id="attCount">0</b>حاضر</div>
+  <button class="btn huge" onclick="openScanner('att')">📷 مسح QR</button>
+  <button class="btn sec" onclick="listMode='a';go('list')">✋ تحديد يدوي (بدون بطاقة)</button>
+  <button class="btn sec" onclick="listMode='p';go('list')">📋 قائمة الحاضرين</button>
+</section>
+
+<!-- ================= القائمة ================= -->
+<section id="list" class="screen">
+  <div class="top"><button class="back" onclick="go('att')">→</button><h2>الحاضرون</h2></div>
+  <div class="total"><div><div style="color:var(--mut)">الإجمالي الحاضر</div><div id="listDate"></div></div><b id="listTotal">0</b></div>
+  <input id="listQ" placeholder="🔎 بحث باللقب أو الاسم أو العمر أو رقم البطاقة">
+  <div class="seg"><button id="segP">📋 الحاضرون</button><button id="segA">✋ تحديد يدوي</button></div>
+  <div id="listBox"></div>
+  <div class="dock"><button class="btn sec" onclick="openScanner('del')">🗑️ حذف بالمسح</button><button class="btn" onclick="openScanner('att')">📷 متابعة المسح</button></div>
+</section>
+
+<!-- ================= إضافة عضو ================= -->
+<section id="add" class="screen">
+  <div class="top"><button class="back" onclick="go('home')">→</button><h2>إضافة عضو جديد</h2></div>
+  <div id="addPick">
+    <p style="color:var(--mut)">أعطِ الطفل بطاقة فارغة، ثم امسحها أو اكتب رقمها.</p>
+    <button class="btn huge" onclick="openScanner('add')">📷 مسح البطاقة الفارغة</button>
+    <div class="box"><label class="f" style="margin-top:0">أو رقم البطاقة</label>
+      <div class="row2"><input id="addNo" inputmode="numeric" placeholder="مثال 045" style="flex:1"><button class="btn" style="margin:0;width:auto;padding:0 20px" id="addNoGo">التالي</button></div>
+      <button class="btn sec" id="addFirst">أول بطاقة فارغة متاحة</button>
+    </div>
+  </div>
+  <div id="addFormBox" hidden></div>
+</section>
+
+<!-- ================= تعديل عضو (مشرف) ================= -->
+<section id="edit" class="screen">
+  <div class="top"><button class="back" onclick="go('home')">→</button><h2>✏️ تعديل معلومات عضو</h2></div>
+  <div id="editPick">
+    <button class="btn" onclick="openScanner('edit')">📷 مسح بطاقته</button>
+    <input id="edQ" placeholder="🔎 بحث باللقب أو الاسم أو رقم البطاقة" style="margin-top:12px">
+    <div id="edBox"></div>
+  </div>
+  <div id="editFormBox" hidden></div>
+</section>
+
+<!-- ================= التصنيفات ================= -->
+<section id="ranks" class="screen">
+  <div class="top"><button class="back" onclick="go('home')">→</button><h2>⭐ التصنيفات</h2></div>
+  <input id="rkQ" placeholder="🔎 بحث">
+  <div id="rkBox" style="margin-top:8px"></div>
+</section>
+
+<!-- ================= أسئلة عشوائية ================= -->
+<section id="quiz" class="screen">
+  <div class="top"><button class="back" onclick="go('home')">→</button><h2>🎲 أسئلة عشوائية</h2></div>
+  <div class="qcount"><span>📚 الأسئلة المتبقية <small id="qcDet"></small></span><b id="qcTot">—</b></div>
+  <details class="types" id="qTypes"><summary>النوع: <span id="qTypesSum">الكل</span> ▾</summary>
+    <label><input type="checkbox" class="chk" value="سهلة" checked> سهلة</label>
+    <label><input type="checkbox" class="chk" value="متوسطة" checked> متوسطة</label>
+    <label><input type="checkbox" class="chk" value="جيدة" checked> جيدة</label>
+  </details>
+  <div style="color:var(--mut);font-size:.9rem;margin-top:8px">القرعة بين حاضري <b id="qDate"></b> · الفرصة الثانية: <b id="qSc"></b></div>
+  <div class="box" id="qDrawBox"><button class="btn huge" id="qDraw" style="margin:0">🎲 القرعة</button></div>
+  <div class="box" id="qQBox" hidden></div>
+  <div class="box" id="qResBox" hidden>
+    <div class="res"><button data-r="صحيح" class="ok">✅ صحيح</button><button data-r="خطأ" class="no">❌ خطأ</button></div>
+    <label class="f">ملاحظة (اختيارية)</label><input id="qNote">
+    <button class="btn grn" id="qConfirm" disabled>✔️ مصادقة</button>
+    <div style="color:var(--mut);font-size:.85rem;margin-top:6px;text-align:center">بدون مصادقة لا يُحسب شيء (عملية تجريبية)</div>
+  </div>
+  <details class="types adm" style="margin-top:16px"><summary>➕ إضافة سؤال جديد</summary>
+    <label class="f">السؤال</label><textarea id="nqT"></textarea>
+    <label class="f">الإجابة</label><input id="nqA">
+    <label class="f">النوع</label><select id="nqType"><option>سهلة</option><option>متوسطة</option><option>جيدة</option></select>
+    <button class="btn" id="nqSave" style="margin-bottom:12px">💾 حفظ السؤال</button>
+  </details>
+</section>
+
+<!-- ================= صاحب البطاقة ================= -->
+<section id="who" class="screen">
+  <div class="top"><button class="back" onclick="go('home')">→</button><h2>صاحب البطاقة</h2></div>
+  <div id="whoBox"></div>
+  <button class="btn sec" onclick="openScanner('who')">🔍 مسح بطاقة أخرى</button>
+</section>
+
+<!-- ================= طباعة البطاقات (مشرف) ================= -->
+<section id="cards" class="screen">
+  <div class="top"><button class="back" onclick="go('home')">→</button><h2>🖨️ طباعة البطاقات</h2></div>
+  <div class="previewCard" id="cdPrev"></div>
+  <div class="row2"><div style="flex:1"><label class="f">من رقم</label><input id="cdFrom" inputmode="numeric" value="1"></div><div style="flex:1"><label class="f">إلى رقم</label><input id="cdTo" inputmode="numeric"></div></div>
+  <label class="item" style="border:0"><input type="checkbox" class="chk" id="cdBlank"> البطاقات الفارغة فقط</label>
+  <button class="btn" id="cdPrint">🖨️ طباعة (<span id="cdN">0</span> بطاقة)</button>
+  <p style="color:var(--mut);font-size:.88rem">10 بطاقات في كل ورقة A4. اختر «حفظ PDF» إن أردت طباعتها في مكان آخر.</p>
+</section>
+
+<!-- ================= الإعدادات ================= -->
+<section id="settings" class="screen">
+  <div class="top"><button class="back" onclick="go('home')">→</button><h2>⚙️ الإعدادات</h2></div>
+  <div class="box" style="margin-top:0"><div id="stWho"></div><button class="btn sec" id="stLogout">🚪 تسجيل الخروج</button></div>
+  <div class="box adm">
+    <b>🔒 إعدادات المشرف</b>
+    <label class="switch">الفرصة الثانية للمخطئين (قرعة متساوية) <input type="checkbox" id="stSc"></label>
+    <label class="f">كلمة مرور جديدة للأساتذة</label><input id="stTp" dir="ltr">
+    <label class="f">كلمة مرور جديدة للمشرف</label><input id="stAp" dir="ltr">
+    <button class="btn" id="stSave">💾 حفظ</button>
+    <button class="btn sec" id="stLink">🔗 نسخ رابط الأساتذة</button>
+  </div>
+  <button class="btn sec" id="stReload">🔄 تحديث البيانات والصور</button>
+</section>
+
+<!-- ================= الماسح ================= -->
+<div id="scanner">
+  <video id="video" playsinline muted autoplay></video>
+  <div class="ret"></div>
+  <div class="stop"><div><div class="md" id="scMode"></div><div class="dt" id="scDate"></div></div><div class="sc" id="scCountBox"><b id="scCount">0</b><small>حاضر</small></div></div>
+  <div class="miniNet" id="scNet"></div>
+  <div id="scard" class="scard"></div>
+  <div class="sbot"><button class="cb" id="torchBtn" hidden>🔦</button><button class="btn" id="scDone">✅ اكتمل المسح</button><button class="cb" id="scClose">✕</button></div>
+  <div class="sheetM" id="assignM" hidden></div>
+</div>
+
+<input type="file" accept="image/*" capture="environment" id="photoIn" hidden>
+<div id="toast"></div>
+<div id="printArea"></div>
+
+<script>
+/* ============================ أدوات ============================ */
+const $=s=>document.querySelector(s);
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const pad3=n=>String(n).padStart(3,'0');
+const keyOf=d=>pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear();
+const fromKey=k=>{const[a,b,c]=k.split('/').map(Number);return new Date(c,b-1,a,12)};
+const byKey=(a,b)=>fromKey(a)-fromKey(b);
+const DAYS=['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+const MONTHS=['جانفي','فيفري','مارس','أفريل','ماي','جوان','جويلية','أوت','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+const longDate=k=>{const d=fromKey(k);return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`};
+const dayLine=k=>`${DAYS[fromKey(k).getDay()]} ${longDate(k)}`;
+const fullName=c=>`${c.s} ${c.f}`.trim();
+const ageTxt=a=>(a===''||a==null)?'':`${a} سنة`;
+const meta=c=>[ageTxt(c.a),`<span dir="ltr">${c.n}</span>`].filter(Boolean).join(' · ');
+const assigned=c=>!!(c&&(c.s||c.f));
+const norm=s=>String(s??'').toLowerCase().replace(/[ً-ْـ]/g,'').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي');
+function match(c,q){
+  q=norm(q).trim();if(!q)return true;
+  const hay=norm(fullName(c));
+  return q.split(/\s+/).every(w=>/^\d+$/.test(w)?(String(c.a)===w||Number(c.n)===Number(w)):hay.includes(w));
+}
+const cmpName=(a,b)=>fullName(a).localeCompare(fullName(b),'ar');
+function toast(m,ms=2600){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display='none',ms)}
+function armBtn(b,label,fn){ // زر بضغطتين للتأكيد
+  if(b.dataset.arm){fn();return}
+  const old=b.innerHTML;b.dataset.arm=1;b.classList.add('arm');b.innerHTML=label;
+  setTimeout(()=>{if(b.isConnected){delete b.dataset.arm;b.classList.remove('arm');b.innerHTML=old}},2600);
+}
+
+/* ============================ الحالة ============================ */
+(function readLink(){ // رابط الأساتذة: ?s=رابط_الخادم
+  const u=new URLSearchParams(location.search).get('s');
+  if(u){const c=LS.get('rf_cfg',{});c.url=u;LS.set('rf_cfg',c);history.replaceState(null,'',location.pathname)}
+})();
+const cfg=Object.assign({url:'',name:'',pass:'',role:'',demo:false},LS.get('rf_cfg',{}));
+const isDemo=()=>cfg.demo;
+const isAdmin=()=>cfg.role==='admin';
+const S={children:[],dates:[],map:{},byNo:{},photos:{},present:{},queue:LS.get('rf_queue',[]),date:keyOf(new Date()),cur:'',online:true,sc:false};
+const saveQ=()=>LS.set('rf_queue',S.queue);
+const presentSet=d=>S.present[d]||(S.present[d]=new Set());
+
+/* ----- تخزين الصور (IndexedDB: يتسع لمئات الصور) ----- */
+const IDB={
+  db:null,
+  open(){return this.db||(this.db=new Promise((res,rej)=>{const r=indexedDB.open('rf',1);r.onupgradeneeded=()=>r.result.createObjectStore('ph');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}))},
+  async all(){try{const db=await this.open();return await new Promise(res=>{const o={},q=db.transaction('ph').objectStore('ph').openCursor();q.onsuccess=()=>{const c=q.result;if(c){o[c.key]=c.value;c.continue()}else res(o)};q.onerror=()=>res(o)})}catch(e){return{}}},
+  async put(k,v){try{const db=await this.open();db.transaction('ph','readwrite').objectStore('ph').put(v,k)}catch(e){}},
+  async del(k){try{const db=await this.open();db.transaction('ph','readwrite').objectStore('ph').delete(k)}catch(e){}},
+  async clear(){try{const db=await this.open();db.transaction('ph','readwrite').objectStore('ph').clear()}catch(e){}}
+};
+function setPhoto(code,d,v){S.photos[code]={d,v};IDB.put(code,{d,v})}
+
+function avatar(c,cls='av'){
+  const p=c&&S.photos[c.c];
+  if(p&&p.d)return `<img class="${cls}" src="${p.d}" alt="">`;
+  return `<div class="${cls}">${esc((c&&c.f||'؟').trim().charAt(0)||'؟')}</div>`;
+}
+/** يتبع البطاقة المنقولة إلى البطاقة الجديدة */
+function resolve(c){for(let g=0;c&&c.to&&g<10;g++)c=S.byNo[Number(c.to)];return c}
+
+/* ============================ الاتصال ============================ */
+async function api(action,data={}){
+  if(isDemo())return Demo.call(action,data);
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),25000);
+  try{
+    const r=await fetch(cfg.url,{method:'POST',body:JSON.stringify({action,pass:cfg.pass,name:cfg.name,...data}),signal:ctl.signal});
+    const j=await r.json();
+    if(j.auth){logout('انتهت صلاحية كلمة المرور — ادخل من جديد');throw Object.assign(new Error(j.error),{server:true})}
+    if(j.error)throw Object.assign(new Error(j.error),{server:true});
+    return j;
+  }finally{clearTimeout(to)}
+}
+function setNet(ok){
+  S.online=ok;let t,err=false;
+  if(isDemo())t='🧪 وضع تجريبي';
+  else if(!ok){t='⚠️ غير متصل — يُحفظ ويُرسل لاحقاً';err=true}
+  else if(S.queue.length)t=`⏳ ${S.queue.length} بانتظار الإرسال`;
+  else t='✓ متصل بالجدول';
+  if(!ok&&S.queue.length)t+=` (${S.queue.length})`;
+  for(const id of ['#net','#scNet']){const e=$(id);e.textContent=t;e.classList.toggle('err',err)}
+  $('#demoBanner').hidden=!isDemo();
+}
+function applyList(j){
+  S.children=j.children||[];S.dates=j.dates||[];if('sc' in j)S.sc=!!j.sc;
+  S.map={};S.byNo={};
+  S.children.forEach(c=>{S.map[c.c]=c;S.byNo[Number(c.n)]=c});
+}
+function upsertChild(c){const o=S.map[c.c];if(o)Object.assign(o,c);else{S.children.push(c);S.map[c.c]=c;S.byNo[Number(c.n)]=c}LS.set('rf_list',{children:S.children,dates:S.dates,sc:S.sc})}
+async function loadList(){
+  try{const j=await api('list');LS.set('rf_list',j);applyList(j);setNet(true);loadPhotos();refreshCur()}
+  catch(e){setNet(false);if(e.server)toast(e.message)}
+}
+async function loadPhotos(){
+  const need=S.children.filter(c=>c.pv&&(!S.photos[c.c]||S.photos[c.c].v!==c.pv)).map(c=>c.c);
+  for(let i=0;i<need.length;i+=20){
+    try{const j=await api('photos',{codes:need.slice(i,i+20)});for(const k in j.photos)setPhoto(k,j.photos[k].d,j.photos[k].v)}catch(e){break}
+  }
+  if(need.length)refreshCur();
+}
+let syncing=false;
+async function syncDay(d=S.date){
+  if(syncing||!cfg.role)return;syncing=true;
+  try{
+    const j=await api('day',{date:d});const s=new Set(j.present||[]);
+    S.queue.filter(q=>q.date===d).forEach(q=>q.op==='mark'?s.add(q.c):s.delete(q.c));
+    S.present[d]=s;setNet(true);refreshCounts();
+    if(S.cur==='list'&&!scan.on)renderList();
+  }catch(e){setNet(false)}
+  syncing=false;
+}
+
+/* ----- طابور الإرسال: كل مسح يُحفظ في الهاتف فوراً ثم يُرسل على دفعات (لا يضيع شيء دون إنترنت) ----- */
+let flushing=false,flushT=null;
+function enqueue(op,date,c){
+  S.queue=S.queue.filter(q=>!(q.c===c.c&&q.date===date)); // مسح متكرر = سطر واحد فقط
+  S.queue.push({op,date,c:c.c,r:c.r});saveQ();setNet(S.online);flushSoon(400);
+}
+function flushSoon(ms=400){clearTimeout(flushT);flushT=setTimeout(flush,ms)}
+async function flush(){
+  if(flushing||!S.queue.length||!cfg.role)return true;
+  flushing=true;
+  const f=S.queue[0],batch=S.queue.filter(q=>q.op===f.op&&q.date===f.date).slice(0,40);
+  try{
+    const j=await api(f.op,{date:f.date,items:batch.map(q=>({c:q.c,r:q.r}))});
+    const sent=new Set(batch);S.queue=S.queue.filter(q=>!sent.has(q));saveQ();setNet(true);
+    (j.res||[]).forEach(x=>{if(f.op==='mark'&&x.s==='dup'&&card.code===x.c)setCardType('dup','سُجِّل اليوم بالفعل')});
+    flushing=false;if(S.queue.length)flushSoon(80);return true;
+  }catch(e){flushing=false;setNet(false);flushSoon(4000);return false}
+}
+async function flushAll(){for(let i=0;i<25&&S.queue.length;i++){if(flushing){await new Promise(r=>setTimeout(r,300));continue}if(!(await flush()))return false}return !S.queue.length}
+
+/* ============================ التنقّل ============================ */
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
+  S.cur=id;window.scrollTo(0,0);refreshCur(true);
+}
+function go(id){
+  if(['edit','cards'].includes(id)&&!isAdmin()){toast('🔒 هذا القسم للمشرف — ادخل بكلمة المشرف من ⚙️',3500);return}
+  show(id);history.pushState({s:id},'');
+}
+window.addEventListener('popstate',e=>{
+  if(scan.on){closeScanner();history.pushState({s:S.cur},'');return}
+  if(!cfg.role){show('login');return}
+  show((e.state&&e.state.s)||'home');
+});
+function refreshCur(entering){
+  refreshCounts();
+  document.querySelectorAll('.adm').forEach(e=>e.style.opacity=isAdmin()?'':'.55');
+  document.querySelectorAll('.adm .lock').forEach(e=>e.hidden=isAdmin());
+  switch(S.cur){
+    case 'att':renderAtt();if(entering)syncDay();break;
+    case 'list':renderList();break;
+    case 'ranks':renderRanks();if(entering)loadList();break;
+    case 'cards':renderCardsPage();break;
+    case 'settings':renderSettings();break;
+    case 'add':if(entering)resetAdd();break;
+    case 'edit':if(entering){$('#editPick').hidden=false;$('#editFormBox').hidden=true;$('#edQ').value=''}renderEditList();break;
+    case 'quiz':document.querySelector('#quiz details.adm').hidden=!isAdmin();if(entering)enterQuiz();break;
+  }
+}
+function refreshCounts(){
+  const today=keyOf(new Date());
+  $('#homeDate').textContent=dayLine(today);
+  $('#homeCount').textContent=presentSet(today).size;
+  $('#attCount').textContent=presentSet(S.date).size;
+  $('#scCount').textContent=presentSet(S.date).size;
+}
+
+/* ============================ الدخول ============================ */
+function logout(msg){
+  cfg.pass='';cfg.role='';cfg.demo=false;LS.set('rf_cfg',cfg);
+  $('#lgUrl').value=cfg.url;$('#lgName').value=cfg.name;$('#lgPass').value='';
+  $('#lgUrlBox').hidden=!!cfg.url&&!msg;
+  show('login');if(msg)toast(msg,3500);
+}
+$('#lgGo').onclick=async()=>{
+  const url=$('#lgUrl').value.trim()||cfg.url,name=$('#lgName').value.trim(),pass=$('#lgPass').value.trim();
+  if(!url){$('#lgUrlBox').hidden=false;toast('الصق رابط الخادم');return}
+  if(!name||!pass){toast('اكتب اسمك وكلمة المرور');return}
+  Object.assign(cfg,{url,name,pass,demo:false});
+  const b=$('#lgGo');b.disabled=true;b.textContent='… جارٍ التحقق';
+  try{const j=await api('auth');cfg.role=j.role;S.sc=j.sc;LS.set('rf_cfg',cfg);afterLogin()}
+  catch(e){cfg.role='';toast(e.server?e.message:'تعذّر الاتصال — تحقق من الرابط والإنترنت',3500);$('#lgUrlBox').hidden=false}
+  b.disabled=false;b.textContent='دخول';
+};
+$('#lgDemo').onclick=()=>{Object.assign(cfg,{demo:true,role:'admin',name:$('#lgName').value.trim()||'تجربة'});LS.set('rf_cfg',cfg);afterLogin()};
+function afterLogin(){
+  const cached=LS.get(isDemo()?'rf_list_demo':'rf_list',null);if(cached)applyList(cached);
+  history.replaceState({s:'home'},'');show('home');setNet(true);
+  loadList();syncDay(keyOf(new Date()));if(S.queue.length)flushSoon(600);
+}
+
+/* ============================ تحديد الحاضرين ============================ */
+function renderAtt(){
+  const d=fromKey(S.date);
+  $('#attDay').textContent=DAYS[d.getDay()]+(S.date===keyOf(new Date())?' — اليوم':'');
+  $('#attDate').textContent=longDate(S.date);
+  $('#attPick').value=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+$('#attPick').addEventListener('change',e=>{const v=e.target.value;if(!v)return;const[y,m,dd]=v.split('-').map(Number);S.date=keyOf(new Date(y,m-1,dd,12));renderAtt();syncDay()});
+
+let listMode='p';
+$('#segP').onclick=()=>{listMode='p';renderList()};
+$('#segA').onclick=()=>{listMode='a';renderList()};
+$('#listQ').addEventListener('input',()=>renderList());
+function renderList(){
+  $('#segP').classList.toggle('on',listMode==='p');$('#segA').classList.toggle('on',listMode==='a');
+  const set=presentSet(S.date),q=$('#listQ').value;
+  $('#listDate').textContent=dayLine(S.date);$('#listTotal').textContent=set.size;
+  let rows,h;
+  if(listMode==='p'){
+    rows=[...set].map(c=>S.map[c]).filter(assigned).sort(cmpName);const all=rows.length;rows=rows.filter(c=>match(c,q));
+    h=rows.map((c,i)=>`<div class="item"><span class="num">${i+1}</span>${avatar(c)}<div class="nm"><b>${esc(fullName(c))}</b><small>${meta(c)}</small></div><button class="ib" data-del="${esc(c.c)}">🗑️</button></div>`).join('')||`<div class="empty">${all?'لا نتيجة للبحث':'لا أحد بعد — ابدأ المسح 📷'}</div>`;
+  }else{
+    rows=S.children.filter(c=>assigned(c)&&!set.has(c.c)&&match(c,q)).sort(cmpName);
+    h=rows.map(c=>`<div class="item">${avatar(c)}<div class="nm"><b>${esc(fullName(c))}</b><small>${meta(c)} · ⭐ ${c.st||0}</small></div><button class="ib add" data-add="${esc(c.c)}">✓ حاضر</button></div>`).join('')||'<div class="empty">الجميع حاضرون 🎉</div>';
+  }
+  $('#listBox').innerHTML=h;
+}
+$('#listBox').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.del){armBtn(b,'تأكيد؟',()=>{const c=S.map[b.dataset.del];presentSet(S.date).delete(c.c);enqueue('unmark',S.date,c);renderList();refreshCounts();toast('حُذف: '+fullName(c))})}
+  else if(b.dataset.add){const c=S.map[b.dataset.add];presentSet(S.date).add(c.c);enqueue('mark',S.date,c);renderList();refreshCounts();toast('✓ حاضر: '+fullName(c))}
+});
+
+/* ============================ الماسح ============================ */
+const scan={on:false,paused:false,mode:'att',stream:null,track:null,det:null,timer:0,last:{c:'',t:0},torch:false,cv:null,ctx:null,cb:null};
+const MODES={att:'📷 تحديد الحاضرين',del:'🗑️ وضع الحذف بالمسح',who:'🔍 التعرف على صاحب البطاقة',add:'➕ امسح البطاقة الفارغة',edit:'✏️ امسح بطاقة العضو',transfer:'🔁 امسح البطاقة الجديدة الفارغة'};
+
+async function openScanner(mode,cb){
+  initAudio();keepAwake();
+  scan.mode=mode;scan.cb=cb||null;scan.last={c:'',t:0};scan.paused=false;
+  const el=$('#scanner');el.classList.add('on');el.classList.toggle('del',mode==='del');
+  const counting=mode==='att'||mode==='del';
+  $('#scMode').textContent=MODES[mode];
+  $('#scDate').textContent=counting?dayLine(S.date):'';
+  $('#scCountBox').style.display=counting?'':'none';
+  $('#scDone').style.display=counting?'':'none';
+  $('#scDone').textContent=mode==='del'?'✓ انتهى الحذف':'✅ اكتمل المسح';
+  $('#assignM').hidden=true;hideCard();refreshCounts();setNet(S.online);
+  try{scan.stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}})}
+  catch(e){closeScanner();toast(location.protocol!=='https:'&&location.hostname!=='localhost'?'الكاميرا تحتاج رابط https':'تعذّر فتح الكاميرا — اسمح للمتصفح باستعمالها',4000);return}
+  const v=$('#video');v.srcObject=scan.stream;try{await v.play()}catch(e){}
+  scan.track=scan.stream.getVideoTracks()[0];scan.torch=false;$('#torchBtn').classList.remove('on');
+  const caps=scan.track.getCapabilities?scan.track.getCapabilities():{};$('#torchBtn').hidden=!caps.torch;
+  scan.det=null;
+  if('BarcodeDetector' in window){try{const f=await BarcodeDetector.getSupportedFormats();if(f.includes('qr_code'))scan.det=new BarcodeDetector({formats:['qr_code']})}catch(e){}}
+  scan.on=true;loop();
+  if(counting)syncDay();
+}
+function closeScanner(){
+  scan.on=false;clearTimeout(scan.timer);
+  if(scan.stream)scan.stream.getTracks().forEach(t=>t.stop());
+  scan.stream=null;$('#video').srcObject=null;$('#scanner').classList.remove('on');$('#assignM').hidden=true;hideCard();
+}
+async function loop(){
+  if(!scan.on)return;
+  const v=$('#video');let code=null;
+  if(!scan.paused&&v.readyState>=2&&v.videoWidth){
+    try{
+      if(scan.det){
+        const r=await scan.det.detect(v);
+        if(r.length){const cx=v.videoWidth/2,cy=v.videoHeight/2;r.sort((a,b)=>dist(a,cx,cy)-dist(b,cx,cy));code=r[0].rawValue}
+      }else if(window.jsQR){
+        const w=640,h=Math.round(v.videoHeight*w/v.videoWidth);
+        if(!scan.cv){scan.cv=document.createElement('canvas');scan.ctx=scan.cv.getContext('2d',{willReadFrequently:true})}
+        scan.cv.width=w;scan.cv.height=h;scan.ctx.drawImage(v,0,0,w,h);
+        const r=jsQR(scan.ctx.getImageData(0,0,w,h).data,w,h,{inversionAttempts:'dontInvert'});if(r)code=r.data;
+      }
+    }catch(e){}
+  }
+  if(code)onCode(code);
+  if(scan.on)scan.timer=setTimeout(loop,scan.det?40:90);
+}
+const dist=(b,cx,cy)=>{const x=b.boundingBox;return Math.hypot(x.x+x.width/2-cx,x.y+x.height/2-cy)};
+
+function onCode(raw){
+  const code=String(raw).trim().toUpperCase(),now=Date.now();
+  if(code===scan.last.c&&now-scan.last.t<2500){scan.last.t=now;return} // نفس البطاقة ما زالت أمام الكاميرا
+  scan.last={c:code,t:now};
+  const raw0=S.map[code];
+  if(!raw0){showCard(null,'bad','بطاقة غير معروفة');beep('bad');return}
+  const c=resolve(raw0),moved=raw0!==c?`البطاقة ${raw0.n} نُقلت ← ستُحدَّد في البطاقة ${c&&c.n}`:'';
+  const m=scan.mode;
+  if(m==='add'){
+    if(assigned(raw0)||raw0.to){showCard(c,'dup',raw0.to?'بطاقة منقولة':'مسندة من قبل');beep('dup');return}
+    beep('ok');closeScanner();openAddForm(raw0);return;
+  }
+  if(m==='transfer'){
+    if(assigned(raw0)||raw0.to){showCard(c,'dup','ليست فارغة');beep('dup');return}
+    beep('ok');closeScanner();scan.cb&&scan.cb(raw0);return;
+  }
+  if(!assigned(c)){ // بطاقة فارغة
+    if(m==='att'){beep('dup');showAssign(raw0);return}
+    showCard(null,'dup',`بطاقة فارغة ${raw0.n}`);beep('dup');return;
+  }
+  if(m==='who'){beep('ok');closeScanner();openProfile(c.c);return}
+  if(m==='edit'){beep('ok');closeScanner();openEditForm(c);return}
+  const set=presentSet(S.date);
+  if(m==='att'){
+    if(set.has(c.c)){showCard(c,'dup','سُجِّل اليوم بالفعل',moved);beep('dup');return}
+    set.add(c.c);enqueue('mark',S.date,c);showCard(c,'ok','حاضر',moved);beep('ok');refreshCounts();
+  }else if(m==='del'){
+    if(!set.has(c.c)){showCard(c,'dup','ليس في قائمة اليوم',moved);beep('dup');return}
+    set.delete(c.c);enqueue('unmark',S.date,c);showCard(c,'del','حُذف من القائمة',moved);beep('bad');refreshCounts();
+  }
+}
+
+/* ----- بطاقة الهوية فوق الكاميرا ----- */
+const card={code:null,t:0};
+function showCard(c,type,tag,note){
+  const el=$('#scard');
+  el.innerHTML=c?`${avatar(c)}<div style="min-width:0"><div class="nm">${esc(fullName(c))}</div><div style="color:#555">${meta(c)}</div><span class="tag">${esc(tag)}</span>${note?`<div class="note">🔁 ${esc(note)}</div>`:''}</div>`
+                :`<div class="av">؟</div><div><div class="nm">${esc(tag)}</div></div>`;
+  el.className='scard show '+type;card.code=c?c.c:null;
+  clearTimeout(card.t);card.t=setTimeout(hideCard,note?4000:2500);
+}
+function setCardType(type,tag){const el=$('#scard');el.className='scard show '+type;const t=el.querySelector('.tag');if(t)t.textContent=tag;beep('dup')}
+function hideCard(){$('#scard').classList.remove('show');card.code=null}
+
+/* ----- إسناد بطاقة فارغة أثناء المسح ----- */
+function showAssign(blank){
+  scan.paused=true;hideCard();
+  const m=$('#assignM');m.hidden=false;
+  m.innerHTML=`<h3 style="margin:0 0 4px">🎫 بطاقة جديدة <span class="cardNo">${blank.n}</span></h3><div style="color:var(--mut)">غير مسندة — أدخل معلومات الطفل ليُسجَّل حاضراً مباشرة</div>${formHTML('as',null)}
+   <div class="row2"><button class="btn sec" id="asCancel">إلغاء</button><button class="btn" id="asSave">💾 إسناد + حاضر</button></div>`;
+  bindForm('as');
+  $('#asCancel').onclick=()=>{m.hidden=true;scan.paused=false;scan.last={c:'',t:0}};
+  $('#asSave').onclick=async()=>{
+    const d=readForm('as');if(!d)return;
+    const b=$('#asSave');b.disabled=true;b.textContent='…';
+    try{
+      const c=await doAssign(blank,d);
+      presentSet(S.date).add(c.c);enqueue('mark',S.date,c);refreshCounts();
+      m.hidden=true;scan.paused=false;showCard(c,'ok','حاضر');beep('ok');
+    }catch(e){toast(e.message||'تعذّر الحفظ');b.disabled=false;b.textContent='💾 إسناد + حاضر';if(e.server)loadList()}
+  };
+}
+async function doAssign(blank,d){
+  const j=await api('assign',{code:blank.c,s:d.s,f:d.f,a:d.a,photo:d.photo});
+  const c=j.child;upsertChild(c);if(d.photo&&c.pv)setPhoto(c.c,d.photo,c.pv);
+  return S.map[c.c];
+}
+
+/* ----- نموذج المعلومات (مشترك بين الإضافة والتعديل) ----- */
+const formPhoto={};
+function formHTML(p,c){
+  const ph=c&&S.photos[c.c];
+  return `<label class="f">اللقب</label><input id="${p}S" value="${esc(c?c.s:'')}" autocomplete="off">
+  <label class="f">الاسم</label><input id="${p}F" value="${esc(c?c.f:'')}" autocomplete="off">
+  <label class="f">العمر (اختياري)</label><input id="${p}A" value="${esc(c?c.a:'')}" type="number" inputmode="numeric">
+  <div class="photoPick" id="${p}Ph"><img id="${p}Prev" ${ph?`src="${ph.d}"`:'hidden'}><span id="${p}PhT">📷 ${ph?'تغيير الصورة':'صورة شخصية (اختيارية) — اضغط للتصوير'}</span></div>
+  <div class="warn" id="${p}W"></div>`;
+}
+function bindForm(p){
+  formPhoto[p]=null;
+  $('#'+p+'Ph').onclick=()=>pickPhoto(d=>{formPhoto[p]=d;const i=$('#'+p+'Prev');i.src=d;i.hidden=false;$('#'+p+'PhT').textContent='✓ الصورة جاهزة — اضغط لتغييرها'});
+}
+function readForm(p,selfCode){
+  const s=$('#'+p+'S').value.trim(),f=$('#'+p+'F').value.trim(),a=$('#'+p+'A').value.trim();
+  if(!s||!f){toast('اكتب اللقب والاسم');return null}
+  const same=S.children.find(c=>c.c!==selfCode&&assigned(c)&&norm(c.s)===norm(s)&&norm(c.f)===norm(f));
+  const w=$('#'+p+'W');
+  if(same&&w.dataset.ok!==s+f){w.dataset.ok=s+f;w.textContent=`⚠️ «${fullName(same)}» مسجَّل من قبل في البطاقة ${same.n}. اضغط حفظ مرة أخرى إن كان طفلاً آخر.`;return null}
+  return {s,f,a,photo:formPhoto[p]};
+}
+let photoCb=null;
+function pickPhoto(cb){photoCb=cb;$('#photoIn').click()}
+$('#photoIn').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(f&&photoCb)photoCb(await compress(f))});
+function compress(file,size=240,q=.72){
+  return new Promise(res=>{const img=new Image();img.onload=()=>{const side=Math.min(img.width,img.height),cv=document.createElement('canvas');cv.width=cv.height=size;cv.getContext('2d').drawImage(img,(img.width-side)/2,(img.height-side)/2,side,side,0,0,size,size);URL.revokeObjectURL(img.src);res(cv.toDataURL('image/jpeg',q))};img.src=URL.createObjectURL(file)});
+}
+
+/* ============================ إضافة عضو ============================ */
+function resetAdd(){$('#addPick').hidden=false;$('#addFormBox').hidden=true;$('#addNo').value=''}
+function cardByNo(v){const c=S.byNo[Number(v)];if(!c){toast('لا توجد بطاقة بهذا الرقم');return null}return c}
+$('#addNoGo').onclick=()=>{const c=cardByNo($('#addNo').value);if(!c)return;if(assigned(c)||c.to){toast(c.to?`البطاقة ${c.n} منقولة`:`البطاقة ${c.n} مسندة إلى ${fullName(c)}`);return}openAddForm(c)};
+$('#addFirst').onclick=()=>{const c=S.children.filter(c=>!assigned(c)&&!c.to).sort((a,b)=>a.n-b.n)[0];if(!c){toast('لا توجد بطاقات فارغة — ولّد بطاقات إضافية من الجدول');return}openAddForm(c)};
+function openAddForm(blank){
+  if(S.cur!=='add')go('add');
+  $('#addPick').hidden=true;const box=$('#addFormBox');box.hidden=false;
+  box.innerHTML=`<div class="box" style="margin-top:0;text-align:center">البطاقة <span class="cardNo" style="font-size:1.4rem">${blank.n}</span></div>${formHTML('ad',null)}
+    <label class="item" style="border:0"><input type="checkbox" class="chk" id="adPres" checked> تسجيله حاضراً اليوم</label>
+    <button class="btn" id="adSave">💾 حفظ</button><button class="btn sec" onclick="resetAdd()">إلغاء</button>`;
+  bindForm('ad');
+  $('#adSave').onclick=async()=>{
+    const d=readForm('ad');if(!d)return;const b=$('#adSave');b.disabled=true;b.textContent='… جارٍ الحفظ';
+    try{
+      const c=await doAssign(blank,d);
+      if($('#adPres').checked){const t=keyOf(new Date());presentSet(t).add(c.c);enqueue('mark',t,c);refreshCounts()}
+      box.innerHTML=`<div class="prof">${avatar(c)}<h3>${esc(fullName(c))}</h3><div>البطاقة <span class="cardNo">${c.n}</span></div><div style="color:var(--mut);margin-top:6px">مرحباً برجل الفجر الجديد 🌙</div></div><button class="btn" onclick="resetAdd()">➕ إضافة عضو آخر</button>`;
+    }catch(e){toast(e.message||'تعذّر الحفظ');b.disabled=false;b.textContent='💾 حفظ';if(e.server)loadList()}
+  };
+}
+
+/* ============================ تعديل عضو (مشرف) ============================ */
+$('#edQ').addEventListener('input',()=>renderEditList());
+function renderEditList(){
+  const q=$('#edQ').value,rows=S.children.filter(c=>assigned(c)&&match(c,q)).sort(cmpName);
+  $('#edBox').innerHTML=rows.map(c=>`<div class="item tap" data-c="${esc(c.c)}">${avatar(c)}<div class="nm"><b>${esc(fullName(c))}</b><small>${meta(c)}</small></div><span>✏️</span></div>`).join('')||'<div class="empty">لا نتيجة</div>';
+}
+$('#edBox').addEventListener('click',e=>{const it=e.target.closest('.item');if(it)openEditForm(S.map[it.dataset.c])});
+function openEditForm(c){
+  if(!isAdmin()){toast('🔒 للمشرف فقط');return}
+  if(S.cur!=='edit')go('edit');
+  $('#editPick').hidden=true;const box=$('#editFormBox');box.hidden=false;
+  box.innerHTML=`<div class="box" style="margin-top:0;text-align:center">البطاقة <span class="cardNo" style="font-size:1.4rem">${c.n}</span> · ⭐ ${c.st||0} · الفرص ${c.ch||0}${c.h?' · 🏅 مكرَّم':''}</div>${formHTML('ed',c)}
+    <button class="btn" id="edSave">💾 حفظ التعديلات</button>
+    <div class="box"><b>🔁 بطاقة ضائعة؟</b><div style="color:var(--mut);font-size:.92rem;margin:4px 0 8px">انقل الطفل إلى بطاقة فارغة جديدة. ينتقل كل شيء (النجوم، الحضور، الفرص، الصورة)، وإذا مُسحت القديمة لاحقاً يُسجَّل الحضور في الجديدة.</div>
+      <div class="row2"><input id="trNo" inputmode="numeric" placeholder="رقم البطاقة الجديدة" style="flex:1"><button class="btn sec" style="margin:0;width:auto;padding:0 16px" id="trScan">📷</button></div>
+      <button class="btn red" id="trGo">🔁 نقل</button></div>
+    <button class="btn sec" onclick="$('#editPick').hidden=false;$('#editFormBox').hidden=true">→ رجوع للقائمة</button>`;
+  bindForm('ed');
+  $('#edSave').onclick=async()=>{
+    const d=readForm('ed',c.c);if(!d)return;const b=$('#edSave');b.disabled=true;b.textContent='…';
+    try{const j=await api('edit',{code:c.c,s:d.s,f:d.f,a:d.a,photo:d.photo});upsertChild(j.child);if(d.photo&&j.child.pv)setPhoto(c.c,d.photo,j.child.pv);toast('✓ حُفظت التعديلات');openEditForm(S.map[c.c])}
+    catch(e){toast(e.message||'تعذّر الحفظ');b.disabled=false;b.textContent='💾 حفظ التعديلات'}
+  };
+  const doTr=async(nb)=>{
+    if(!nb)return;if(assigned(nb)||nb.to){toast('البطاقة '+nb.n+' ليست فارغة');return}
+    const b=$('#trGo');
+    armBtn(b,`تأكيد النقل ${c.n} ← ${nb.n}؟`,async()=>{
+      b.disabled=true;
+      try{
+        await api('transfer',{from:c.c,to:nb.c});
+        const ph=S.photos[c.c];if(ph){setPhoto(nb.c,ph.d,Date.now());delete S.photos[c.c];IDB.del(c.c)}
+        await loadList();toast(`✓ نُقل إلى البطاقة ${nb.n}`);openEditForm(S.map[nb.c]);
+      }catch(e){toast(e.message||'تعذّر النقل');b.disabled=false}
+    });
+  };
+  $('#trGo').onclick=()=>doTr(cardByNo($('#trNo').value));
+  $('#trScan').onclick=()=>openScanner('transfer',nb=>{openEditForm(c);$('#trNo').value=nb.n;doTr(nb)});
+}
+
+/* ============================ صاحب البطاقة ============================ */
+let whoCode=null;
+async function openProfile(code){
+  whoCode=code;if(S.cur!=='who')go('who');
+  const c=S.map[code];renderProfile(c,null);
+  try{const j=await api('child',{code});upsertChild(j.child);if(whoCode===code)renderProfile(S.map[code],j.history)}
+  catch(e){if(whoCode===code&&$('#whHist'))$('#whHist').innerHTML='<div class="empty">تعذّر جلب السجل الآن</div>'}
+}
+function renderProfile(c,hist){
+  if(!c){$('#whoBox').innerHTML='<div class="empty">بطاقة غير معروفة</div>';return}
+  let h='<div class="empty">… جارٍ جلب السجل</div>',p=0,a=0;
+  if(hist){
+    const today=fromKey(keyOf(new Date())),rows=hist.slice().sort((x,y)=>byKey(x.d,y.d)).filter(x=>fromKey(x.d)<=today);
+    p=rows.filter(x=>x.v==='حاضر').length;a=rows.filter(x=>x.v==='غائب').length;
+    h=rows.map(x=>`<div class="${x.v==='حاضر'?'p':x.v==='غائب'?'a':''}">${x.d.slice(0,5)}<br>${x.v==='حاضر'?'⭐':x.v==='غائب'?'✕':'—'}</div>`).join('')||'<div class="empty">لا سجل بعد</div>';
+  }
+  $('#whoBox').innerHTML=`<div class="prof">${avatar(c)}<h3>${esc(fullName(c))}</h3><div style="color:var(--mut)">${esc(ageTxt(c.a))} · البطاقة <span class="cardNo">${c.n}</span></div>
+   <div class="big">⭐ ${c.st||0}</div>
+   <div><span class="badge g">🎯 الفرص: ${c.ch||0}</span> ${c.h?'<span class="badge">🏅 مكرَّم</span>':''}</div>
+   ${hist?`<div style="color:var(--mut);margin-top:8px">حضر ${p} · غاب ${a}</div>`:''}
+   <div class="hist" id="whHist">${h}</div>
+   ${isAdmin()?`<button class="btn sec" onclick="openEditForm(S.map['${c.c}'])">✏️ تعديل</button>`:''}</div>`;
+}
+
+/* ============================ التصنيفات ============================ */
+$('#rkQ').addEventListener('input',()=>renderRanks());
+$('#rkBox').addEventListener('click',e=>{const it=e.target.closest('.item');if(it)openProfile(it.dataset.c)});
+function renderRanks(){
+  const q=$('#rkQ').value,rows=S.children.filter(c=>assigned(c)&&match(c,q));
+  const line=c=>`<div class="item tap" data-c="${esc(c.c)}">${avatar(c)}<div class="nm"><b>${esc(fullName(c))}</b><small>${meta(c)}</small></div><span class="stars">⭐ ${c.st||0}</span></div>`;
+  const hon=rows.filter(c=>c.h).sort((a,b)=>(b.st||0)-(a.st||0)||cmpName(a,b));
+  let h=`<div class="hon"><div class="grp" style="margin-top:6px">🏅 المكرَّمون <small>${hon.length}</small></div>${hon.map(line).join('')||'<div class="empty" style="padding:12px">لا أحد بعد</div>'}</div>`;
+  const groups={};rows.forEach(c=>(groups[c.st||0]=groups[c.st||0]||[]).push(c));
+  Object.keys(groups).map(Number).sort((a,b)=>b-a).forEach(st=>{
+    h+=`<div class="grp"><span>${st===0?'بدون نجوم':`⭐ ${st} ${st===1?'نجمة':st===2?'نجمتان':st<=10?'نجوم':'نجمة'}`}</span><small>${groups[st].length} طفل</small></div>`+groups[st].sort(cmpName).map(line).join('');
+  });
+  $('#rkBox').innerHTML=rows.length?h:'<div class="empty">لا أحد بعد</div>';
+}
+
+/* ============================ أسئلة عشوائية ============================ */
+const QZ={child:null,q:null,result:'',ansShown:false};
+const qTypes=()=>[...document.querySelectorAll('#qTypes input:checked')].map(i=>i.value);
+(function(){const saved=LS.get('rf_qtypes',null);if(saved)document.querySelectorAll('#qTypes input').forEach(i=>i.checked=saved.includes(i.value))})();
+$('#qTypes').addEventListener('change',()=>{LS.set('rf_qtypes',qTypes());typesSum()});
+function typesSum(){const t=qTypes();$('#qTypesSum').textContent=t.length===3?'الكل':t.length?t.join('، '):'لا شيء'}
+function setCounts(c){if(!c)return;$('#qcTot').textContent=c.total;$('#qcDet').textContent=`(سهلة ${c['سهلة']} · متوسطة ${c['متوسطة']} · جيدة ${c['جيدة']})`}
+async function enterQuiz(){
+  typesSum();$('#qDate').textContent=dayLine(S.date);$('#qSc').textContent=S.sc?'مفعّلة':'موقفة';
+  renderQuiz();
+  try{const j=await api('qcount');setCounts(j.counts)}catch(e){}
+}
+function renderQuiz(){
+  const c=QZ.child;
+  $('#qDrawBox').innerHTML=c?`<div class="drawn">${avatar(c)}<h3>${esc(fullName(c))}</h3><div style="color:var(--mut)">البطاقة <span class="cardNo">${c.n}</span> · 🎯 الفرص ${c.ch||0}</div></div>
+     <div class="row2"><button class="btn sec" id="qRedraw">🔄 إعادة القرعة</button>${QZ.q?'':'<button class="btn" id="qShow">❓ إظهار السؤال</button>'}</div>`
+   :'<button class="btn huge" id="qDraw" style="margin:0">🎲 القرعة</button>';
+  const qb=$('#qQBox');qb.hidden=!QZ.q;
+  if(QZ.q)qb.innerHTML=`<div style="text-align:center"><span class="badge g">${esc(QZ.q.type||'—')}</span></div><div class="qtext">${esc(QZ.q.text)}</div>
+     ${QZ.ansShown?`<div class="qans">💡 ${esc(QZ.q.ans||'(لا توجد إجابة مكتوبة)')}</div>`:''}
+     <div class="row2">${QZ.ansShown?'':'<button class="btn sec" id="qAns">👁️ إظهار الإجابة</button>'}<button class="btn sec" id="qOther">🔀 سؤال آخر</button></div>`;
+  $('#qResBox').hidden=!(c&&QZ.q);
+  document.querySelectorAll('.res button').forEach(b=>b.classList.toggle('on',b.dataset.r===QZ.result));
+  $('#qConfirm').disabled=!(c&&QZ.q&&QZ.result);
+  const on=(id,fn)=>{const e=$(id);if(e)e.onclick=fn};
+  on('#qDraw',()=>doDraw());on('#qRedraw',()=>doDraw(true));on('#qShow',()=>doQuestion());on('#qOther',()=>doQuestion(true));
+  on('#qAns',()=>{QZ.ansShown=true;renderQuiz()});
+}
+async function doDraw(again){
+  const b=$(again?'#qRedraw':'#qDraw');if(b){b.disabled=true;b.textContent='🎲 …'}
+  try{
+    if(!(await flushAll()))toast('بعض التسجيلات لم تُرسل بعد');
+    const j=await api('draw',{date:S.date,exclude:again&&QZ.child?QZ.child.c:''});
+    upsertChild(j.child);QZ.child=S.map[j.child.c];beep('ok');
+  }catch(e){toast(e.message||'تعذّرت القرعة',3500)}
+  renderQuiz();
+}
+async function doQuestion(other){
+  if(!qTypes().length){toast('اختر نوعاً واحداً على الأقل');return}
+  try{
+    const j=await api('question',{types:qTypes(),exclude:other&&QZ.q?QZ.q.text:''});setCounts(j.counts);
+    if(!j.q){toast('لا توجد أسئلة متبقية من هذا النوع',3500);return}
+    QZ.q=j.q;QZ.ansShown=false;QZ.result='';renderQuiz();
+  }catch(e){toast(e.message||'تعذّر جلب السؤال')}
+}
+document.querySelectorAll('.res button').forEach(b=>b.onclick=()=>{QZ.result=b.dataset.r;renderQuiz()});
+$('#qConfirm').onclick=async()=>{
+  const b=$('#qConfirm');b.disabled=true;b.textContent='…';
+  try{
+    const j=await api('confirm',{code:QZ.child.c,q:QZ.q,result:QZ.result,note:$('#qNote').value.trim(),date:S.date});
+    upsertChild(j.child);setCounts(j.counts);
+    toast(QZ.result==='صحيح'?`🏅 أحسنت يا ${QZ.child.f}! صودق`:'✓ صودقت النتيجة');
+    Object.assign(QZ,{child:null,q:null,result:'',ansShown:false});$('#qNote').value='';
+  }catch(e){toast(e.message||'تعذّرت المصادقة')}
+  b.textContent='✔️ مصادقة';renderQuiz();
+};
+$('#nqSave').onclick=async()=>{
+  const text=$('#nqT').value.trim(),ans=$('#nqA').value.trim(),type=$('#nqType').value;
+  if(!text){toast('اكتب السؤال');return}
+  try{const j=await api('addq',{text,ans,type});setCounts(j.counts);$('#nqT').value='';$('#nqA').value='';toast('✓ أُضيف السؤال')}catch(e){toast(e.message)}
+};
+
+/* ============================ البطاقات ============================ */
+function qrURL(t){if(!window.qrcode)return '';const q=qrcode(0,'Q');q.addData(t);q.make();return q.createDataURL(10,2)}
+function pcard(c){
+  return `<div class="pcard"><div class="pl"><img src="logo.png" alt=""><div class="t1">رجال الفجر</div><div class="t2">جيل الغد</div></div><div class="pr"><img class="pq" src="${qrURL(c.c)}" alt=""><div class="pn">${esc(c.n)}</div></div></div>`;
+}
+function cardRange(){
+  const a=Number($('#cdFrom').value)||1,b=Number($('#cdTo').value)||a,blank=$('#cdBlank').checked;
+  return S.children.filter(c=>Number(c.n)>=Math.min(a,b)&&Number(c.n)<=Math.max(a,b)&&(!blank||(!assigned(c)&&!c.to))).sort((x,y)=>x.n-y.n);
+}
+function renderCardsPage(){
+  if(!$('#cdTo').value&&S.children.length)$('#cdTo').value=Math.max(...S.children.map(c=>Number(c.n)));
+  $('#cdN').textContent=cardRange().length;
+  const first=cardRange()[0]||S.children[0];$('#cdPrev').innerHTML=first?pcard(first):'';
+}
+['#cdFrom','#cdTo','#cdBlank'].forEach(s=>$(s).addEventListener('input',renderCardsPage));
+$('#cdPrint').onclick=()=>{const r=cardRange();if(!r.length){toast('لا توجد بطاقات في هذا المجال');return}$('#printArea').innerHTML=r.map(pcard).join('');setTimeout(()=>window.print(),500)};
+
+/* ============================ الإعدادات ============================ */
+function renderSettings(){
+  $('#stWho').innerHTML=`👤 <b>${esc(cfg.name)}</b> — ${isAdmin()?'مشرف 🔑':'أستاذ'}${isDemo()?' (تجريبي)':''}`;
+  $('#stSc').checked=S.sc;$('#stTp').value='';$('#stAp').value='';
+  document.querySelectorAll('#settings .adm').forEach(e=>e.hidden=!isAdmin());
+}
+$('#stLogout').onclick=()=>logout();
+$('#stSave').onclick=async()=>{
+  try{
+    const ap=$('#stAp').value.trim();
+    const j=await api('setcfg',{sc:$('#stSc').checked,tp:$('#stTp').value.trim(),ap});
+    S.sc=j.sc;if(ap&&!isDemo()){cfg.pass=ap;LS.set('rf_cfg',cfg)}toast('✓ حُفظت الإعدادات');renderSettings();
+  }catch(e){toast(e.message)}
+};
+$('#stLink').onclick=async()=>{const l=location.origin+location.pathname+'?s='+encodeURIComponent(cfg.url);try{await navigator.clipboard.writeText(l);toast('✓ نُسخ الرابط — أرسله للأساتذة مع كلمتهم')}catch(e){prompt('انسخ الرابط:',l)}};
+$('#stReload').onclick=async()=>{toast('جارٍ التحديث…');await loadList();syncDay(keyOf(new Date()));toast('✓ تم التحديث')};
+
+/* ============================ أزرار الماسح ============================ */
+$('#scClose').onclick=()=>{closeScanner();refreshCur()};
+$('#scDone').onclick=async()=>{
+  const m=scan.mode;closeScanner();
+  if(S.cur!=='list'){listMode='p';go('list')}else renderList();
+  if(m!=='att')return;
+  if(!(await flushAll())){toast('ستُرسل التسجيلات عند عودة الاتصال');return}
+  try{await api('finish',{date:S.date})}catch(e){}
+};
+$('#torchBtn').onclick=async()=>{try{scan.torch=!scan.torch;await scan.track.applyConstraints({advanced:[{torch:scan.torch}]});$('#torchBtn').classList.toggle('on',scan.torch)}catch(e){toast('الفلاش غير متاح')}};
+
+/* ----- الصوت والاهتزاز ----- */
+let AC=null;
+function initAudio(){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}catch(e){}}
+function tone(f,d,t=0,type='sine',vol=.25){if(!AC)return;const o=AC.createOscillator(),g=AC.createGain(),s=AC.currentTime+t;o.type=type;o.frequency.value=f;g.gain.setValueAtTime(vol,s);g.gain.exponentialRampToValueAtTime(.001,s+d);o.connect(g).connect(AC.destination);o.start(s);o.stop(s+d+.03)}
+const vib=p=>{try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}};
+function beep(k){if(k==='ok'){tone(1650,.11,0,'square',.12);vib(50)}else if(k==='dup'){tone(720,.09);tone(720,.09,.14);vib([40,60,40])}else{tone(230,.28,0,'sawtooth',.18);vib(220)}}
+
+/* ----- الشاشة لا تنطفئ ----- */
+let wake=null;
+async function keepAwake(){try{if('wakeLock' in navigator&&!wake&&document.visibilityState==='visible'){wake=await navigator.wakeLock.request('screen');wake.addEventListener('release',()=>wake=null)}}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){keepAwake();if(cfg.role&&S.queue.length)flushSoon(300)}});
+document.addEventListener('pointerdown',keepAwake);
+
+/* ============================ الوضع التجريبي ============================ */
+const Demo={
+  db:null,
+  load(){
+    if(this.db)return this.db;
+    this.db=LS.get('rf_demo2',null);
+    if(!this.db){
+      const n=[['بن علي','محمد',9],['قاسمي','أنس',11],['بوزيد','يوسف',8],['حداد','عبد الرحمن',12],['مرابط','إلياس',10],['شريف','آدم',7]];
+      const kids=[];for(let i=1;i<=20;i++){const x=n[i-1];kids.push({n:pad3(i),c:`RF-${pad3(i)}-DEMO`,s:x?x[0]:'',f:x?x[1]:'',a:x?x[2]:'',ch:0,h:false,to:''})}
+      this.db={kids,att:{},photos:{},q:[{text:'كم عدد ركعات صلاة الفجر؟',ans:'ركعتان',type:'سهلة'},{text:'ما هي أطول سورة في القرآن؟',ans:'سورة البقرة',type:'سهلة'},{text:'اذكر فضل ركعتي الفجر',ans:'خير من الدنيا وما فيها',type:'متوسطة'},{text:'من هو أول مؤذن في الإسلام؟',ans:'بلال بن رباح',type:'متوسطة'},{text:'في أي سورة ذُكر «إنهم فتية آمنوا بربهم»؟',ans:'سورة الكهف',type:'جيدة'}],qd:[],sc:false};
+      this.save();
+    }
+    return this.db;
+  },
+  save(){LS.set('rf_demo2',this.db)},
+  st(c){return Object.values(this.db.att).filter(d=>d[c]==='حاضر').length},
+  obj(k,i){return{...k,r:i+2,st:this.st(k.c),pv:this.db.photos[k.c]?this.db.photos[k.c].v:0}},
+  idx(c){return this.db.kids.findIndex(k=>k.c===c)},
+  follow(i){const K=this.db.kids;for(let g=0;i>=0&&K[i].to&&g<10;g++)i=Number(K[i].to)-1;return i},
+  counts(){const o={total:this.db.q.length};['سهلة','متوسطة','جيدة'].forEach(t=>o[t]=this.db.q.filter(x=>x.type===t).length);return o},
+  async call(a,p){
+    const db=this.load(),K=db.kids;await new Promise(r=>setTimeout(r,100));
+    const asg=k=>k&&(k.s||k.f);
+    switch(a){
+      case 'auth':return{role:'admin',sc:db.sc};
+      case 'list':{const j={children:K.map((k,i)=>this.obj(k,i)),dates:Object.keys(db.att).sort(byKey),sc:db.sc};LS.set('rf_list_demo',j);return j}
+      case 'photos':{const o={};(p.codes||[]).forEach(c=>{if(db.photos[c])o[c]=db.photos[c]});return{photos:o}}
+      case 'day':{const d=db.att[p.date]||{};return{present:Object.keys(d).filter(c=>d[c]==='حاضر')}}
+      case 'child':{const i=this.follow(this.idx(p.code));if(i<0)throw new Error('بطاقة غير معروفة');const k=K[i];return{child:this.obj(k,i),history:Object.keys(db.att).sort(byKey).map(d=>({d,v:db.att[d][k.c]||''}))}}
+      case 'mark':case 'unmark':{const d=db.att[p.date]=db.att[p.date]||{};const res=p.items.map(it=>{const i=this.follow(this.idx(it.c));if(i<0||!asg(K[i]))return{c:it.c,s:'unknown'};const c=K[i].c;if(a==='mark'&&d[c]==='حاضر')return{c:it.c,s:'dup'};d[c]=a==='mark'?'حاضر':'غائب';return{c:it.c,s:'ok'}});this.save();return{res}}
+      case 'finish':{const d=db.att[p.date]=db.att[p.date]||{};K.forEach(k=>{if(asg(k)&&d[k.c]!=='حاضر')d[k.c]='غائب'});this.save();return{present:0}}
+      case 'assign':case 'edit':{const i=this.idx(p.code);if(i<0)throw new Error('بطاقة غير معروفة');const k=K[i];if(a==='assign'&&(asg(k)||k.to))throw new Error('هذه البطاقة ليست فارغة');Object.assign(k,{s:p.s,f:p.f,a:p.a});if(p.photo)db.photos[k.c]={d:p.photo,v:Date.now()};this.save();return{child:this.obj(k,i)}}
+      case 'transfer':{const i=this.idx(p.from),j=this.idx(p.to),A=K[i],B=K[j];if(asg(B)||B.to)throw new Error('البطاقة الجديدة ليست فارغة');Object.assign(B,{s:A.s,f:A.f,a:A.a,ch:A.ch,h:A.h});Object.values(db.att).forEach(d=>{if(d[A.c]){d[B.c]=d[A.c];delete d[A.c]}});if(db.photos[A.c]){db.photos[B.c]=db.photos[A.c];delete db.photos[A.c]}Object.assign(A,{s:'',f:'',a:'',ch:0,h:false,to:B.n});this.save();return{ok:true}}
+      case 'draw':{const d=db.att[p.date]||{};let pool=K.filter(k=>asg(k)&&d[k.c]==='حاضر'&&!k.h&&(db.sc||!k.ch));if(!pool.length)throw new Error('لا يوجد أطفال متاحون للقرعة اليوم');if(pool.length>1&&p.exclude)pool=pool.filter(k=>k.c!==p.exclude);const k=pool[Math.floor(Math.random()*pool.length)];return{child:this.obj(k,K.indexOf(k))}}
+      case 'qcount':return{counts:this.counts()};
+      case 'question':{let pool=db.q.filter(x=>p.types.includes(x.type));if(pool.length>1&&p.exclude)pool=pool.filter(x=>x.text!==p.exclude);return{q:pool.length?pool[Math.floor(Math.random()*pool.length)]:null,counts:this.counts()}}
+      case 'confirm':{const i=this.follow(this.idx(p.code)),k=K[i];k.ch=(k.ch||0)+1;if(p.result==='صحيح')k.h=true;db.q=db.q.filter(x=>x.text!==p.q.text);db.qd.push({...p.q,child:k.c,result:p.result,note:p.note});this.save();return{child:this.obj(k,i),counts:this.counts()}}
+      case 'addq':db.q.push({text:p.text,ans:p.ans,type:p.type});this.save();return{counts:this.counts()};
+      case 'setcfg':db.sc=!!p.sc;this.save();return{sc:db.sc};
+    }
+    throw new Error('عملية غير معروفة');
+  }
+};
+
+/* ============================ البداية ============================ */
+(function init(){
+  if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+  IDB.all().then(o=>{S.photos=o;if(cfg.role)refreshCur()});
+  if(cfg.role){afterLogin()}else{logout()}
+  setInterval(()=>{ // مزامنة مع الأساتذة الآخرين
+    if(!cfg.role||isDemo())return;
+    if((scan.on&&(scan.mode==='att'||scan.mode==='del'))||S.cur==='att'||S.cur==='list')syncDay();
+    if(S.queue.length&&!flushing)flush();
+  },4000);
+  setInterval(()=>{if(cfg.role&&!isDemo()&&(scan.on||S.cur==='att'))loadList()},30000); // بطاقات أسندها أساتذة آخرون
+})();
+</script>
+</body>
+</html>
