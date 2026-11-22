@@ -137,21 +137,19 @@ details.types label{display:flex;align-items:center;gap:10px;padding:8px 0}
 #login .brand{flex-direction:column;text-align:center;margin-top:30px}
 #login .brand img{width:110px;height:110px;border-radius:26px}
 /* ---------- البطاقة المطبوعة ---------- */
-.pcard{width:8.5cm;height:5.5cm;display:flex;border:1px dashed #9aa;border-radius:.3cm;overflow:hidden;background:#fff;color:#123;break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-family:'Tajawal',sans-serif}
-.pcard .pl{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.08cm;padding:.2cm;background:linear-gradient(180deg,#FFF7EE,#fff 60%)}
-.pcard .pl img{width:2.15cm;height:2.15cm;object-fit:contain}
-.pcard .t1{font-weight:800;font-size:16pt;color:var(--grn);line-height:1.05}
-.pcard .t2{font-weight:800;font-size:11.5pt;color:var(--org);line-height:1}
-.pcard .pr{width:4.4cm;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.08cm;border-inline-start:.12cm solid var(--org);background:#fff}
-.pcard .pq{width:3.95cm;height:3.95cm;image-rendering:pixelated}
-.pcard .pn{font-weight:800;font-size:15pt;direction:ltr;letter-spacing:2px;color:var(--grn);line-height:1}
+.pcard{position:relative;width:9.8cm;height:6.33cm;overflow:hidden;border-radius:.25cm;break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-family:'Tajawal',sans-serif;outline:1px dashed #bbb}
+.pcard .bg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.pcard .qbox{position:absolute;left:4.6%;top:9.3%;width:43.8%;height:63.2%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1%}
+.pcard .pq{height:78%;aspect-ratio:1;image-rendering:pixelated}
+.pcard .pn{font-weight:800;font-size:15pt;direction:ltr;letter-spacing:3px;color:#0B5E2A;line-height:1}
 .previewCard{display:flex;justify-content:center;margin:14px 0;overflow:auto}
 #printArea{display:none}
 @media print{
   body{background:#fff!important}
   body>*:not(#printArea){display:none!important}
-  #printArea{display:grid!important;grid-template-columns:repeat(2,8.5cm);gap:.12cm;justify-content:center}
-  @page{size:A4;margin:.7cm}
+  #printArea{display:grid!important;grid-template-columns:repeat(2,9.8cm);gap:.15cm;justify-content:center;align-content:start}
+  .pcard{outline:none;border:1px dashed #bbb}
+  @page{size:A4;margin:.55cm}
 }
 </style>
 </head>
@@ -164,8 +162,7 @@ details.types label{display:flex;align-items:center;gap:10px;padding:8px 0}
   <label class="f">اسمك (يظهر في سجل المسح)</label><input id="lgName" autocomplete="name">
   <label class="f">كلمة المرور</label><input id="lgPass" type="password" dir="ltr">
   <button class="btn" id="lgGo">دخول</button>
-  <button class="btn sec" id="lgDemo">🧪 تجربة بدون جدول</button>
-</section>
+  </section>
 
 <!-- ================= الرئيسية ================= -->
 <section id="home" class="screen">
@@ -276,7 +273,7 @@ details.types label{display:flex;align-items:center;gap:10px;padding:8px 0}
   <div class="row2"><div style="flex:1"><label class="f">من رقم</label><input id="cdFrom" inputmode="numeric" value="1"></div><div style="flex:1"><label class="f">إلى رقم</label><input id="cdTo" inputmode="numeric"></div></div>
   <label class="item" style="border:0"><input type="checkbox" class="chk" id="cdBlank"> البطاقات الفارغة فقط</label>
   <button class="btn" id="cdPrint">🖨️ طباعة (<span id="cdN">0</span> بطاقة)</button>
-  <p style="color:var(--mut);font-size:.88rem">10 بطاقات في كل ورقة A4. اختر «حفظ PDF» إن أردت طباعتها في مكان آخر.</p>
+  <p style="color:var(--mut);font-size:.88rem">8 بطاقات في كل ورقة A4 (9.8×6.3 سم). اختر «حفظ PDF» إن أردت طباعتها في مكان آخر.</p>
 </section>
 
 <!-- ================= الإعدادات ================= -->
@@ -497,7 +494,6 @@ $('#lgGo').onclick=async()=>{
   catch(e){cfg.role='';toast(e.server?e.message:'تعذّر الاتصال — تحقق من الرابط والإنترنت',3500);$('#lgUrlBox').hidden=false}
   b.disabled=false;b.textContent='دخول';
 };
-$('#lgDemo').onclick=()=>{Object.assign(cfg,{demo:true,role:'admin',name:$('#lgName').value.trim()||'تجربة'});LS.set('rf_cfg',cfg);afterLogin()};
 function afterLogin(){
   const cached=LS.get(isDemo()?'rf_list_demo':'rf_list',null);if(cached)applyList(cached);
   history.replaceState({s:'home'},'');show('home');setNet(true);
@@ -850,7 +846,7 @@ $('#nqSave').onclick=async()=>{
 /* ============================ البطاقات ============================ */
 function qrURL(t){if(!window.qrcode)return '';const q=qrcode(0,'Q');q.addData(t);q.make();return q.createDataURL(10,2)}
 function pcard(c){
-  return `<div class="pcard"><div class="pl"><img src="logo.png" alt=""><div class="t1">رجال الفجر</div><div class="t2">جيل الغد</div></div><div class="pr"><img class="pq" src="${qrURL(c.c)}" alt=""><div class="pn">${esc(c.n)}</div></div></div>`;
+  return `<div class="pcard"><img class="bg" src="card-bg.jpg" alt=""><div class="qbox"><img class="pq" src="${qrURL(c.c)}" alt=""><div class="pn">${esc(c.n)}</div></div></div>`;
 }
 function cardRange(){
   const a=Number($('#cdFrom').value)||1,b=Number($('#cdTo').value)||a,blank=$('#cdBlank').checked;
