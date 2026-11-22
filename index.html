@@ -343,7 +343,9 @@ function armBtn(b,label,fn){ // زر بضغطتين للتأكيد
   const u=new URLSearchParams(location.search).get('s');
   if(u){const c=LS.get('rf_cfg',{});c.url=u;LS.set('rf_cfg',c);history.replaceState(null,'',location.pathname)}
 })();
+const DEFAULT_URL='https://script.google.com/macros/s/AKfycbyIgkPBXHOYFSXPnj3b1cg-q7H06ot1dwkXtXoIqb94SRm5HdlHcj_Aayz6CbB-5kXM/exec';
 const cfg=Object.assign({url:'',name:'',pass:'',role:'',demo:false},LS.get('rf_cfg',{}));
+if(!cfg.url)cfg.url=DEFAULT_URL;
 const isDemo=()=>cfg.demo;
 const isAdmin=()=>cfg.role==='admin';
 const S={children:[],dates:[],map:{},byNo:{},photos:{},present:{},queue:LS.get('rf_queue',[]),date:keyOf(new Date()),cur:'',online:true,sc:false};
