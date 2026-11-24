@@ -1,5 +1,5 @@
 // رجال الفجر — يسمح بفتح الصفحة بسرعة حتى مع إنترنت ضعيف
-const V = 'rf-v4';
+const V = 'rf-v5';
 const SHELL = ['./', 'index.html', 'jsqr.js', 'qrcode.js', 'logo.png', 'icon-192.png', 'icon-512.png', 'manifest.webmanifest'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });

@@ -214,6 +214,17 @@ details.types.off{opacity:.45;pointer-events:none}
   <div class="dock"><button class="btn sec" onclick="openScanner('del')">🗑️ حذف بالمسح</button><button class="btn" onclick="openScanner('att')">📷 متابعة المسح</button></div>
 </section>
 
+<!-- ================= مراجعة المسح (جلسة مقفلة) ================= -->
+<section id="sess" class="screen">
+  <div class="top"><h2>📋 مراجعة المسح</h2></div>
+  <div class="total"><div><div style="color:var(--mut)">في هذا المسح</div><div id="sessDate"></div></div><b id="sessTotal">0</b></div>
+  <div class="box" style="margin:0 0 12px;color:#FFE3A3;border-color:#6B5000;background:#2A2100">🔒 لا يُسجَّل أحد في الجدول حتى تضغط «تأكيد الحضور». لا يمكن الخروج قبل التأكيد أو حذف المسح.</div>
+  <input id="sessQ" placeholder="🔎 بحث باللقب أو الاسم أو رقم البطاقة">
+  <div id="sessBox"></div>
+  <button class="btn sec" id="sessDel" style="margin-top:18px">🗑️ حذف هذا المسح</button>
+  <div class="dock"><button class="btn sec" id="sessMore">📷 متابعة المسح</button><button class="btn grn" id="sessOk">✅ تأكيد الحضور (<span id="sessN">0</span>)</button></div>
+</section>
+
 <!-- ================= إضافة عضو ================= -->
 <section id="add" class="screen">
   <div class="top"><button class="back" onclick="go('home')">→</button><h2>إضافة عضو جديد</h2></div>
@@ -233,7 +244,7 @@ details.types.off{opacity:.45;pointer-events:none}
   <div class="top"><button class="back" onclick="go('home')">→</button><h2>👥 الأعضاء</h2><button class="back sp" onclick="openScanner('who')">📷</button></div>
   <input id="mbQ" placeholder="🔎 بحث باللقب أو الاسم أو رقم البطاقة">
   <div class="seg" id="mbSeg"><button data-f="all">الكل</button><button data-f="nd">📦 لم تُسلَّم بعد</button><button data-f="d">✓ مُسلَّمة</button></div>
-  <div style="color:var(--mut);font-size:.9rem" id="mbCount"></div>
+  <div class="row2" style="align-items:center"><div style="color:var(--mut);font-size:.9rem;flex:1" id="mbCount"></div><select id="mbSort" style="flex:1"><option value="az">ترتيب أبجدي</option><option value="n">حسب رقم البطاقة</option></select></div>
   <div id="mbBox"></div>
 </section>
 
@@ -318,6 +329,11 @@ details.types.off{opacity:.45;pointer-events:none}
     <button class="btn" id="stSave">💾 حفظ</button>
   </div>
   <button class="btn sec" id="stReload">🔄 تحديث البيانات والصور</button>
+  <div class="box adm" id="clrBox" style="border-color:#7A2B2B"><b>🗑️ تفريغ بطاقة (حذف عضو)</b>
+    <div style="color:var(--mut);font-size:.9rem;margin:4px 0 8px">تعيد البطاقة فارغة لتُعطى لطفل آخر. يُحذف الاسم والنجوم والحضور نهائياً.</div>
+    <div class="row2"><input id="clrNo" inputmode="numeric" placeholder="رقم البطاقة" style="flex:1"><button class="btn sec" style="margin:0;width:auto;padding:0 16px" id="clrScan">📷</button><button class="btn" style="margin:0;width:auto;padding:0 18px" id="clrGo">عرض</button></div>
+    <div id="clrInfo"></div>
+  </div>
 </section>
 
 <!-- ================= تأكيد تسليم البطاقات بعد المسح ================= -->
@@ -327,7 +343,7 @@ details.types.off{opacity:.45;pointer-events:none}
 <div id="scanner">
   <video id="video" playsinline muted autoplay></video>
   <div class="ret"></div>
-  <div class="stop"><div><div class="md" id="scMode"></div><div class="dt" id="scDate"></div></div><div class="sc" id="scCountBox"><b id="scCount">0</b><small>حاضر</small></div></div>
+  <div class="stop"><div><div class="md" id="scMode"></div><div class="dt" id="scDate"></div></div><div class="sc" id="scCountBox"><b id="scCount">0</b><small id="scCountLbl">حاضر</small></div></div>
   <div class="miniNet" id="scNet"></div>
   <div id="scard" class="scard"></div>
   <div class="sbot"><button class="cb" id="torchBtn" hidden>🔦</button><button class="btn" id="scDone">✅ اكتمل المسح</button><button class="cb" id="scClose">✕</button></div>
@@ -385,6 +401,11 @@ const S={children:[],dates:[],map:{},byNo:{},photos:{},present:{},queue:LS.get('
 const saveQ=()=>LS.set('rf_queue',S.queue);
 const presentSet=d=>S.present[d]||(S.present[d]=new Set());
 const saveUndel=()=>LS.set('rf_undel',S.undel);
+/* ----- جلسة المسح: محفوظة في الهاتف حتى التأكيد أو الحذف ----- */
+S.sess=LS.get('rf_sess',null);
+const saveSess=()=>LS.set('rf_sess',S.sess);
+const sessOpen=()=>!!(S.sess&&S.sess.codes&&S.sess.codes.length);
+function sessGuard(){if(!sessOpen())return false;toast('🔒 أكّد الحضور أو احذف المسح أولاً',3000);if(S.cur!=='sess')show('sess');return true}
 
 /* ----- تخزين الصور (IndexedDB) ----- */
 const IDB={
@@ -473,19 +494,21 @@ async function flush(){
 async function flushAll(){for(let i=0;i<25&&S.queue.length;i++){if(flushing){await new Promise(r=>setTimeout(r,300));continue}if(!(await flush()))return false}return !S.queue.length}
 
 /* ============================ التنقّل ============================ */
-const ADMIN_SCREENS=['att','list','add','edit','qadmin','cards'];
+const ADMIN_SCREENS=['att','list','add','edit','qadmin','cards','sess'];
 function show(id){
   if(ADMIN_SCREENS.includes(id)&&!isAdmin())id='home';
   $$('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
   S.cur=id;window.scrollTo(0,0);refreshCur(true);
 }
 function go(id){
+  if(id!=='sess'&&sessGuard())return;
   if(ADMIN_SCREENS.includes(id)&&!isAdmin()){toast('هذا القسم للمشرفين فقط');return}
   show(id);history.pushState({s:id},'');
 }
 window.addEventListener('popstate',e=>{
   if(scan.on){closeScanner();history.pushState({s:S.cur},'');return}
   if(!$('#delivM').hidden){$('#delivM').hidden=true;history.pushState({s:S.cur},'');return}
+  if(sessOpen()){history.pushState({s:'sess'},'');sessGuard();return}
   if(!cfg.role){show('login');return}
   show((e.state&&e.state.s)||'home');
 });
@@ -501,6 +524,7 @@ function refreshCur(entering){
     case 'settings':if(entering)renderSettings();break;
     case 'add':if(entering)resetAdd();break;
     case 'quiz':if(entering)enterQuiz();break;
+    case 'sess':renderSess();break;
     case 'qadmin':if(entering)enterQAdmin();break;
     case 'who':if(whoCode)renderProfile(S.map[whoCode],whoHist);break;
   }
@@ -510,7 +534,9 @@ function refreshCounts(){
   $('#homeDate').textContent=dayLine(t);
   $('#homeCount').textContent=presentSet(t).size;
   $('#attCount').textContent=presentSet(S.date).size;
-  $('#scCount').textContent=presentSet(S.date).size;
+  const inSess=scan.on&&scan.mode==='att';
+  $('#scCount').textContent=inSess?(S.sess?S.sess.codes.length:0):presentSet(S.date).size;
+  $('#scCountLbl').textContent=inSess?'في هذا المسح':'حاضر';
 }
 
 /* ============================ الدخول ============================ */
@@ -532,7 +558,7 @@ $('#lgGo').onclick=async()=>{
 };
 function afterLogin(){
   const cached=LS.get(isDemo()?'rf_list_demo':'rf_list',null);if(cached)applyList(cached);
-  history.replaceState({s:'home'},'');show('home');setNet(true);
+  history.replaceState({s:'home'},'');show(sessOpen()&&isAdmin()?'sess':'home');setNet(true);
   loadList();syncDay(todayKey());if(S.queue.length)flushSoon(600);
 }
 
@@ -571,11 +597,12 @@ $('#listBox').addEventListener('click',e=>{
 
 /* ============================ الماسح ============================ */
 const scan={on:false,paused:false,mode:'att',stream:null,track:null,det:null,timer:0,last:{c:'',t:0},torch:false,cv:null,ctx:null,cb:null};
-const MODES={att:'📷 تحديد الحاضرين',del:'🗑️ وضع الحذف بالمسح',who:'🔍 التعرف على صاحب البطاقة',add:'➕ امسح البطاقة الفارغة',transfer:'🔁 امسح البطاقة الجديدة الفارغة',undel:'📦 امسح البطاقات لإزالتها من التسليم'};
+const MODES={att:'📷 تحديد الحاضرين',del:'🗑️ وضع الحذف بالمسح',who:'🔍 التعرف على صاحب البطاقة',add:'➕ امسح البطاقة الفارغة',transfer:'🔁 امسح البطاقة الجديدة الفارغة',undel:'📦 امسح البطاقات لإزالتها من التسليم',clear:'🗑️ امسح البطاقة المراد تفريغها'};
 
 async function openScanner(mode,cb){
   initAudio();keepAwake();
   scan.mode=mode;scan.cb=cb||null;scan.last={c:'',t:0};scan.paused=false;
+  if(mode==='att'){if(!S.sess||!S.sess.codes)S.sess={date:S.date,codes:[]};else S.date=S.sess.date;saveSess()}
   const el=$('#scanner');el.classList.add('on');el.classList.toggle('del',mode==='del'||mode==='undel');
   const counting=mode==='att'||mode==='del';
   $('#scMode').textContent=MODES[mode];
@@ -591,7 +618,7 @@ async function openScanner(mode,cb){
   const caps=scan.track.getCapabilities?scan.track.getCapabilities():{};$('#torchBtn').hidden=!caps.torch;
   scan.det=null;
   if('BarcodeDetector' in window){try{const f=await BarcodeDetector.getSupportedFormats();if(f.includes('qr_code'))scan.det=new BarcodeDetector({formats:['qr_code']})}catch(e){}}
-  scan.on=true;loop();
+  scan.on=true;refreshCounts();loop();
   if(counting)syncDay();
 }
 function closeScanner(){
@@ -632,6 +659,7 @@ function onCode(raw){
     if(assigned(raw0)||raw0.to){showCard(c,'dup',raw0.to?'بطاقة منقولة':'مسندة من قبل');beep('dup');return}
     beep('ok');closeScanner();openAddForm(raw0);return;
   }
+  if(m==='clear'){beep('ok');closeScanner();scan.cb&&scan.cb(raw0);return}
   if(m==='transfer'){
     if(assigned(raw0)||raw0.to){showCard(c,'dup','ليست فارغة');beep('dup');return}
     beep('ok');closeScanner();scan.cb&&scan.cb(raw0);return;
@@ -648,9 +676,8 @@ function onCode(raw){
   }
   const set=presentSet(S.date);
   if(m==='att'){
-    if(!c.d){undelSet(S.date).add(c.c);saveUndel()}
-    if(set.has(c.c)){showCard(c,'dup','سُجِّل اليوم بالفعل',moved);beep('dup');return}
-    set.add(c.c);enqueue('mark',S.date,c);showCard(c,'ok','حاضر',moved);beep('ok');refreshCounts();
+    if(set.has(c.c)||S.sess.codes.includes(c.c)){showCard(c,'dup','سُجِّل اليوم بالفعل',moved);beep('dup');return}
+    S.sess.codes.push(c.c);saveSess();showCard(c,'ok','حاضر',moved);beep('ok');refreshCounts();
   }else if(m==='del'){
     if(!set.has(c.c)){showCard(c,'dup','ليس في قائمة اليوم',moved);beep('dup');return}
     set.delete(c.c);enqueue('unmark',S.date,c);showCard(c,'del','حُذف من القائمة',moved);beep('bad');refreshCounts();
@@ -681,7 +708,7 @@ function showAssign(blank){
     const b=$('#asSave');b.disabled=true;b.textContent='…';
     try{
       const c=await doAssign(blank,d,true);
-      presentSet(S.date).add(c.c);enqueue('mark',S.date,c);refreshCounts();
+      S.sess.codes.push(c.c);saveSess();refreshCounts();
       m.hidden=true;scan.paused=false;showCard(c,'ok','حاضر');beep('ok');
     }catch(e){toast(e.message||'تعذّر الحفظ');b.disabled=false;b.textContent='💾 إسناد + حاضر';if(e.server)loadList()}
   };
@@ -747,6 +774,7 @@ function openAddForm(blank){
 /* ============================ الأعضاء ============================ */
 let mbFilter='all';
 $('#mbQ').addEventListener('input',()=>renderMembers());
+$('#mbSort').addEventListener('change',()=>renderMembers());
 $('#mbSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(b){mbFilter=b.dataset.f;renderMembers()}});
 $('#mbBox').addEventListener('click',e=>{const it=e.target.closest('.item');if(it)openProfile(it.dataset.c)});
 function renderMembers(){
@@ -754,7 +782,7 @@ function renderMembers(){
   const q=$('#mbQ').value,all=S.children.filter(assigned);
   const nd=all.filter(c=>!c.d).length;
   $('#mbSeg [data-f="nd"]').textContent=`📦 لم تُسلَّم بعد (${nd})`;
-  const rows=all.filter(c=>match(c,q)&&(mbFilter==='all'||(mbFilter==='nd'?!c.d:!!c.d))).sort(cmpName);
+  const rows=all.filter(c=>match(c,q)&&(mbFilter==='all'||(mbFilter==='nd'?!c.d:!!c.d))).sort($('#mbSort').value==='n'?(a,b)=>Number(a.n)-Number(b.n):cmpName);
   $('#mbCount').textContent=`${rows.length} عضو`;
   $('#mbBox').innerHTML=rows.map(c=>`<div class="item tap" data-c="${esc(c.c)}">${avatar(c)}<div class="nm"><b>${esc(fullName(c))}</b><small>${meta(c)} · ⭐ ${c.st||0}</small></div>${c.d?'':'<span class="badge r">📦 لم تُسلَّم</span>'}${isAdmin()?'<span>✏️</span>':''}</div>`).join('')||'<div class="empty">لا نتيجة</div>';
 }
@@ -812,7 +840,7 @@ function renderProfile(c,hist){
     ?`<button class="btn" onclick="openScanner('who')">🔍 مسح بطاقة أخرى</button><div style="color:var(--mut);font-size:.88rem;margin-top:8px">✓ سُلّمت البطاقة في ${esc(c.d)}</div>`
     :`<button class="btn" onclick="openScanner('who')">ليس بعد (مسح بطاقة أخرى)</button><button class="lnk" id="dlvBtn">📦 تسليم البطاقة</button>`;
   $('#whoBox').innerHTML=`<div class="prof">${avatar(c)}<h3>${esc(fullName(c))}</h3><div style="color:var(--mut)">${esc(ageTxt(c.a))}${c.a!==''&&c.a!=null?' · ':''}البطاقة <span class="cardNo">${c.n}</span></div>
-   <div class="big">⭐ ${c.st||0}</div>
+   <div class="big">⭐ ${c.st||0}</div>${c.ps?`<div style="color:var(--mut);font-size:.88rem">منها ${c.ps} نجوم سابقة</div>`:''}
    <div><span class="badge g">🎯 الفرص: ${c.ch||0}</span>${c.h?'<span class="badge">🏅 مكرَّم</span>':''}${c.d?'':'<span class="badge r">📦 لم تُسلَّم</span>'}</div>
    ${hist?`<div style="color:var(--mut);margin-top:8px">حضر ${p} · غاب ${a}</div>`:''}
    <div class="hist" id="whHist">${h}</div></div>
@@ -896,7 +924,7 @@ function typeForAge(a){
   return QTYPES.find(t=>{const r=S.ages.r&&S.ages.r[t];return r&&n>=r[0]&&n<=r[1]})||null;
 }
 async function enterQuiz(){
-  $('#qDate').textContent=dayLine(S.date);$('#qSc').textContent=S.sc?'مفعّلة':'موقفة';
+  $('#qDate').textContent=dayLine(todayKey())+' (اليوم)';$('#qSc').textContent=S.sc?'مفعّلة':'موقفة';
   renderQuiz();
   try{const j=await api('qcount');setCounts(j.counts)}catch(e){}
 }
@@ -933,7 +961,7 @@ async function doDraw(again){
   const b=$(again?'#qRedraw':'#qDraw');if(b){b.disabled=true;b.textContent='🎲 …'}
   try{
     if(isAdmin()&&!(await flushAll()))toast('بعض التسجيلات لم تُرسل بعد');
-    const j=await api('draw',{date:S.date,exclude:again&&QZ.child?QZ.child.c:''});
+    const j=await api('draw',{date:todayKey(),exclude:again&&QZ.child?QZ.child.c:''});
     upsertChild(j.child);
     // إعادة القرعة تُخفي السؤال السابق
     Object.assign(QZ,{child:S.map[j.child.c],q:null,result:'',ansShown:false});$('#qNote').value='';$('#qAge').checked=false;beep('ok');
@@ -955,7 +983,7 @@ $$('.res button').forEach(b=>b.onclick=()=>{QZ.result=b.dataset.r;renderQuiz()})
 $('#qConfirm').onclick=async()=>{
   const b=$('#qConfirm');b.disabled=true;b.textContent='…';
   try{
-    const j=await api('confirm',{code:QZ.child.c,q:QZ.q,result:QZ.result,note:$('#qNote').value.trim(),date:S.date});
+    const j=await api('confirm',{code:QZ.child.c,q:QZ.q,result:QZ.result,note:$('#qNote').value.trim(),date:todayKey()});
     upsertChild(j.child);setCounts(j.counts);
     toast(QZ.result==='صحيح'?`🏅 أحسنت يا ${QZ.child.f}! صودق`:'✓ صودقت النتيجة');
     Object.assign(QZ,{child:null,q:null,result:'',ansShown:false});$('#qNote').value='';
@@ -1029,6 +1057,7 @@ $('#cdPrint').onclick=()=>{const r=cardRange();if(!r.length){toast('لا توج�
 function renderSettings(){
   $('#stWho').innerHTML=`👤 <b>${esc(cfg.name)}</b> — ${isAdmin()?'مشرف 🔑':'أستاذ'}${isDemo()?' (تجريبي)':''}`;
   $('#stSc').checked=S.sc;$('#stAg').checked=!!S.ages.on;$('#stTp').value='';$('#stAp').value='';
+  $('#clrInfo').innerHTML='';$('#clrNo').value='';
   $('#stAges').innerHTML=QTYPES.map(t=>{const r=(S.ages.r&&S.ages.r[t])||['',''];return `<b>${t}</b><input type="number" inputmode="numeric" id="agF_${t}" value="${r[0]}" placeholder="من"><input type="number" inputmode="numeric" id="agT_${t}" value="${r[1]}" placeholder="إلى">`}).join('');
 }
 $('#stLogout').onclick=()=>logout();
@@ -1044,16 +1073,70 @@ $('#stSave').onclick=async()=>{
 $('#stLink').onclick=async()=>{const l=location.origin+location.pathname;try{await navigator.clipboard.writeText(l);toast('✓ نُسخ رابط مبادرة رجال الفجر')}catch(e){prompt('انسخ الرابط:',l)}};
 $('#stReload').onclick=async()=>{toast('جارٍ التحديث…');await loadList();syncDay(todayKey());toast('✓ تم التحديث')};
 
+/* ----- تفريغ بطاقة / إلغاء التسليم (مشرف) ----- */
+let clrCard=null;
+$('#clrGo').onclick=()=>{const c=cardByNo($('#clrNo').value);if(c)renderClr(c)};
+$('#clrScan').onclick=()=>openScanner('clear',c=>{$('#clrNo').value=c.n;renderClr(c)});
+function renderClr(c){
+  clrCard=c=S.map[c.c]||c;
+  const box=$('#clrInfo');
+  if(!assigned(c)&&!c.to){box.innerHTML=`<div class="empty" style="padding:14px">البطاقة <span class="cardNo">${c.n}</span> فارغة.</div>`;return}
+  let h;
+  if(c.to){
+    const n=resolve(c);
+    h=`<div class="box" style="text-align:center">🔁 البطاقة <span class="cardNo">${c.n}</span> نُقلت إلى <span class="cardNo">${c.to}</span></div>
+      ${n&&assigned(n)?`<div class="item">${avatar(n)}<div class="nm"><b>${esc(fullName(n))}</b><small>${meta(n)} · ⭐ ${n.st||0}</small></div></div>`:''}
+      <div style="color:var(--mut);font-size:.88rem;margin-top:6px">تفريغ البطاقة القديمة يوقف تحويلها، ولا يمسّ البطاقة الجديدة.</div>
+      <button class="btn red" id="clrDo">🗑️ تفريغ البطاقة القديمة ${c.n}</button>`;
+  }else{
+    h=`<div class="item">${avatar(c)}<div class="nm"><b>${esc(fullName(c))}</b><small>${meta(c)} · ⭐ ${c.st||0} · الفرص ${c.ch||0}${c.h?' · 🏅':''}</small></div></div>
+      <div style="color:var(--mut);font-size:.9rem">${c.d?'📦 سُلّمت في '+esc(c.d):'📦 لم تُسلَّم بعد'}</div>
+      ${c.d?'<button class="btn sec" id="clrUnd">↩️ إلغاء التسليم</button>':''}
+      <button class="btn red" id="clrDo">🗑️ تفريغ البطاقة (حذف ${esc(fullName(c))})</button>`;
+  }
+  box.innerHTML=h;
+  const done=async(action,msg)=>{try{await api(action,{code:c.c});await loadList();toast(msg);renderClr(S.map[c.c])}catch(e){toast(e.message||'تعذّر الحفظ')}};
+  const del=$('#clrDo');del.onclick=()=>armBtn(del,c.to?'⚠️ اضغط مجدداً لتأكيد التفريغ':`⚠️ تأكيد حذف ${esc(fullName(c))} وكل نجومه؟`,()=>{del.disabled=true;if(S.photos[c.c]){delete S.photos[c.c];IDB.del(c.c)}done('clear','🗑️ فُرّغت البطاقة '+c.n)});
+  const und=$('#clrUnd');if(und)und.onclick=()=>armBtn(und,'اضغط مجدداً لتأكيد إلغاء التسليم',()=>{und.disabled=true;done('undeliver','↩️ أُلغي التسليم')});
+}
+
 /* ============================ أزرار الماسح ============================ */
-$('#scClose').onclick=()=>{const m=scan.mode;closeScanner();if(m==='undel')showDeliv();refreshCur()};
+$('#scClose').onclick=()=>{
+  const m=scan.mode;closeScanner();
+  if(m==='att'){if(sessOpen()){openSess();return}S.sess=null;saveSess()}
+  if(m==='undel')showDeliv();refreshCur();
+};
+function openSess(){if(S.cur!=='sess'){show('sess');history.pushState({s:'sess'},'')}else renderSess()}
 $('#scDone').onclick=async()=>{
   const m=scan.mode;closeScanner();
   if(m==='undel'){showDeliv();return}
+  if(m==='att'){if(sessOpen())openSess();else{S.sess=null;saveSess();toast('لم يُمسح أحد')}return}
   if(S.cur!=='list'){listMode='p';go('list')}else renderList();
-  if(m!=='att')return;
+};
+
+/* ============================ مراجعة المسح وتأكيده ============================ */
+$('#sessQ').addEventListener('input',()=>renderSess());
+function renderSess(){
+  if(!S.sess){return}
+  const q=$('#sessQ').value,rows=S.sess.codes.map(k=>S.map[k]).filter(Boolean);
+  $('#sessDate').textContent=dayLine(S.sess.date);$('#sessTotal').textContent=rows.length;$('#sessN').textContent=rows.length;
+  const list=rows.map((c,i)=>({c,i})).filter(x=>match(x.c,q));
+  $('#sessBox').innerHTML=list.map(({c,i})=>`<div class="item"><span class="num">${i+1}</span>${avatar(c)}<div class="nm"><b>${esc(fullName(c))}</b><small>${meta(c)}${c.d?'':' · 📦 لم تُسلَّم'}</small></div><button class="ib" data-rm="${esc(c.c)}">✕</button></div>`).join('')||`<div class="empty">${rows.length?'لا نتيجة':'لا أحد في هذا المسح'}</div>`;
+  $('#sessOk').disabled=!rows.length;
+}
+$('#sessBox').addEventListener('click',e=>{const b=e.target.closest('[data-rm]');if(!b)return;armBtn(b,'إزالة؟',()=>{S.sess.codes=S.sess.codes.filter(k=>k!==b.dataset.rm);saveSess();renderSess()})});
+$('#sessMore').onclick=()=>openScanner('att');
+$('#sessDel').onclick=()=>{const b=$('#sessDel'),n=S.sess?S.sess.codes.length:0;armBtn(b,`⚠️ تأكيد حذف ${n} من هذا المسح؟`,()=>{S.sess=null;saveSess();toast('حُذف المسح');show('att');history.replaceState({s:'att'},'')})};
+$('#sessOk').onclick=async()=>{
+  const s=S.sess;if(!s||!s.codes.length)return;
+  const d=s.date;
+  s.codes.forEach(k=>{const c=S.map[k];if(!c)return;presentSet(d).add(k);enqueue('mark',d,c);if(!c.d)undelSet(d).add(k)});
+  saveUndel();const n=s.codes.length;S.sess=null;saveSess();
+  S.date=d;listMode='p';show('list');history.replaceState({s:'list'},'');
+  toast(`✅ أُكّد حضور ${n}`);
   delivSel=null;showDeliv();
-  if(!(await flushAll())){toast('ستُرسل التسجيلات عند عودة الاتصال');return}
-  try{await api('finish',{date:S.date})}catch(e){}
+  if(!(await flushAll())){toast('ستُرسل التسجيلات عند عودة الاتصال',3500);return}
+  try{await api('finish',{date:d})}catch(e){}
 };
 $('#torchBtn').onclick=async()=>{try{scan.torch=!scan.torch;await scan.track.applyConstraints({advanced:[{torch:scan.torch}]});$('#torchBtn').classList.toggle('on',scan.torch)}catch(e){toast('الفلاش غير متاح')}};
 
@@ -1086,7 +1169,7 @@ const Demo={
   },
   save(){LS.set('rf_demo3',this.db)},
   st(c){return Object.values(this.db.att).filter(d=>d[c]==='حاضر').length},
-  obj(k,i){return{...k,r:i+2,st:this.st(k.c),pv:this.db.photos[k.c]?this.db.photos[k.c].v:0}},
+  obj(k,i){return{...k,r:i+2,st:this.st(k.c)+(Number(k.ps)||0),pv:this.db.photos[k.c]?this.db.photos[k.c].v:0}},
   idx(c){return this.db.kids.findIndex(k=>k.c===c)},
   follow(i){const K=this.db.kids;for(let g=0;i>=0&&K[i].to&&g<10;g++)i=Number(K[i].to)-1;return i},
   counts(){const o={total:this.db.q.length};QTYPES.forEach(t=>o[t]=this.db.q.filter(x=>x.type===t).length);return o},
@@ -1111,6 +1194,8 @@ const Demo={
       case 'question':{let pool=db.q.filter(x=>p.types.includes(x.type));if(pool.length>1&&p.exclude)pool=pool.filter(x=>x.text!==p.exclude);return{q:pool.length?{...pool[Math.floor(Math.random()*pool.length)]}:null,counts:this.counts()}}
       case 'confirm':{const i=this.follow(this.idx(p.code)),k=K[i];k.ch=(k.ch||0)+1;if(p.result==='صحيح')k.h=true;const qi=db.q.findIndex(x=>x.text===p.q.text);const q=qi>=0?db.q.splice(qi,1)[0]:p.q;db.qd.push({...q,date:p.date,n:k.n,child:k.s+' '+k.f,result:p.result,note:p.note,who:cfg.name});this.save();return{child:this.obj(k,i),counts:this.counts()}}
       case 'qlist':return this.ql();
+      case 'clear':{const i=this.idx(p.code),k=K[i];if(!asg(k)&&!k.to)throw new Error('البطاقة فارغة أصلاً');Object.values(db.att).forEach(d=>delete d[k.c]);delete db.photos[k.c];K.forEach(x=>{if(Number(x.to)===Number(k.n))x.to=''});Object.assign(k,{s:'',f:'',a:'',ch:0,h:false,d:'',to:'',ps:0});this.save();return{ok:true,child:this.obj(k,i)}}
+      case 'undeliver':{const i=this.idx(p.code);K[i].d='';this.save();return{ok:true,child:this.obj(K[i],i)}}
       case 'addq':db.q.push({text:p.text,ans:p.ans,type:p.type});this.save();return this.ql();
       case 'editq':{const x=db.q.find(y=>y.text===p.orig.text);if(!x)throw new Error('لم يُعثر على السؤال');Object.assign(x,{text:p.text,ans:p.ans,type:p.type});this.save();return this.ql()}
       case 'delq':db.q=db.q.filter(y=>y.text!==p.orig.text);this.save();return this.ql();
